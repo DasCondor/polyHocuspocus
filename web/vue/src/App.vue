@@ -6,6 +6,7 @@ const SUITS = [['♠', 'Spades'], ['♥', 'Hearts'], ['♣', 'Clubs'], ['♦', '
 const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
 const RANK_NAMES = { A: 'Ace', J: 'Jack', Q: 'Queen', K: 'King' };
 const ROUNDS = 3;
+const SHARE_URL = 'https://dascondor.github.io/polyHocuspocus/#play/web-vue';
 
 function makeCard(id) {
   const rank = RANKS[id % 13];
@@ -58,10 +59,42 @@ const text = computed(() =>
       : round.value === 1 ? 'Which pile is your card in?'
         : 'The cards have moved. Which pile is your card in now?');
 
+const shareText = computed(() => `The 21-card trick found my card: the ${revealed.value.name}! Think of a card and try it:`);
+const shareLinks = computed(() => {
+  const text = shareText.value;
+  const url = SHARE_URL;
+  const t = encodeURIComponent(text);
+  const u = encodeURIComponent(url);
+  return [
+    ['WhatsApp', `https://wa.me/?text=${t}%20${u}`],
+    ['X', `https://x.com/intent/post?text=${t}&url=${u}`],
+    ['Facebook', `https://www.facebook.com/sharer/sharer.php?u=${u}`],
+    ['Reddit', `https://www.reddit.com/submit?url=${u}&title=${t}`],
+    ['Email', `mailto:?subject=${encodeURIComponent('The 21-card trick')}&body=${t}%20${u}`],
+  ];
+});
+const copyLabel = ref('Copy link');
+
+// Phones get the native share sheet; other devices open the menu instead.
+function shareNatively(e) {
+  if (navigator.share && matchMedia('(pointer: coarse)').matches) {
+    e.preventDefault();
+    navigator.share({ title: 'Hocus Pocus', text: shareText.value, url: SHARE_URL }).catch(() => {});
+  }
+}
+
+function copyLink() {
+  navigator.clipboard.writeText(SHARE_URL).then(
+    () => { copyLabel.value = 'Link copied'; },
+    () => { copyLabel.value = 'Copy failed'; },
+  );
+}
+
 function newGame() {
   deck.value = newDeck();
   round.value = 0;
   phase.value = 'remember';
+  copyLabel.value = 'Copy link';
 }
 
 function startChoosing() {
@@ -127,7 +160,16 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKey));
 
     <div class="hp-actions">
       <button v-if="phase === 'remember'" class="hp-primary" @click="startChoosing">I've got my card</button>
-      <button v-else-if="phase === 'reveal'" class="hp-primary" @click="newGame">Play again</button>
+      <template v-else-if="phase === 'reveal'">
+        <button class="hp-primary" @click="newGame">Play again</button>
+        <details class="hp-share">
+          <summary class="hp-secondary" @click="shareNatively">Share</summary>
+          <div class="hp-share-menu">
+            <a v-for="[name, href] in shareLinks" :key="name" :href="href" target="_blank" rel="noopener">{{ name }}</a>
+            <button class="hp-copy" type="button" @click="copyLink">{{ copyLabel }}</button>
+          </div>
+        </details>
+      </template>
     </div>
     <p class="hp-made">Built with Vue</p>
   </main>

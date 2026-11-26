@@ -1,0 +1,44 @@
+<!doctype html>
+<!-- Source for site/social.png, the link preview image (1200x630).
+     Rendered with a headless browser; see README, "Updating the screenshots". -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="../web/shared/hocuspocus.css">
+  <style>
+    body { width: 1200px; height: 630px; overflow: hidden; display: grid; place-items: center;
+           background: radial-gradient(ellipse at 70% 40%, #2f6149, #13261f 70%); }
+    .wrap { display: grid; grid-template-columns: 1fr 420px; align-items: center; gap: 40px; width: 1080px; }
+    h1 { margin: 0 0 14px; font: 600 64px/1.05 Georgia, serif; color: #f3f1ea; }
+    h1 span { color: #e2c785; }
+    p { margin: 0 0 26px; font-size: 30px; color: #c4d0c8; line-height: 1.35; }
+    .tags { display: flex; gap: 12px; flex-wrap: wrap; }
+    .tags b { padding: 8px 18px; border-radius: 999px; background: #e2c785; color: #1b2a21; font-size: 24px; }
+    .tags b + b { background: transparent; color: #e2c785; border: 2px solid #e2c785; }
+    .fan { position: relative; height: 330px; }
+    .fan .hp-card { position: absolute; left: 140px; top: 40px; width: 150px; height: 206px; animation: none;
+                    margin: 0; transform-origin: 50% 120%; }
+    .fan .hp-card .hp-corner { font-size: 30px; }
+    .fan .hp-card .hp-pip { font-size: 68px; }
+    .fan .hp-card:nth-child(1) { transform: rotate(-24deg); }
+    .fan .hp-card:nth-child(2) { transform: rotate(-8deg); }
+    .fan .hp-card:nth-child(3) { transform: rotate(8deg); }
+    .fan .hp-card:nth-child(4) { transform: rotate(24deg); box-shadow: 0 0 50px #e2c78588; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div>
+      <h1>Hocus Pocus<br><span>The 21-card trick</span></h1>
+      <p>Think of a card, point to its pile three times, and watch it appear.</p>
+      <div class="tags"><b>Play it free</b><b>15 coding languages</b><b>6 web versions</b></div>
+    </div>
+    <ul class="fan hp-cards">
+      <li class="hp-card"><span class="hp-corner">K<span>♠</span></span><span class="hp-pip">♠</span></li>
+      <li class="hp-card red"><span class="hp-corner">7<span>♦</span></span><span class="hp-pip">♦</span></li>
+      <li class="hp-card"><span class="hp-corner">J<span>♣</span></span><span class="hp-pip">♣</span></li>
+      <li class="hp-card red"><span class="hp-corner">Q<span>♥</span></span><span class="hp-pip">♥</span></li>
+    </ul>
+  </div>
+</body>
+</html>

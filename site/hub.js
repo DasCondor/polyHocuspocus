@@ -27,6 +27,7 @@
     renderSegments(web);
     renderChips(el('chips-cli'), languages.filter(l => l.group === 'cli'));
     renderChips(el('chips-web'), web);
+    renderRunPicker(cli);
 
     applyHash();
     if (!playing) play(web[0]);
@@ -77,6 +78,7 @@
       el('server-title').textContent = `${lang.name} version`;
       el('server-note').textContent = lang.note || '';
       el('server-docker').textContent = lang.docker;
+      el('server-dockerfile').href = REPO + lang.dockerfile;
       el('server-run').textContent = lang.run;
       el('server-url').textContent = `http://localhost:${lang.server.port}`;
       el('server-preview').src = lang.server.preview;
@@ -94,6 +96,7 @@
 
   // Grow the frame to fit the game so the page never scrolls twice.
   let observer;
+  let landed = false;
   el('frame').addEventListener('load', () => {
     const frame = el('frame');
     observer?.disconnect();
@@ -103,6 +106,9 @@
       observer = new ResizeObserver(fit);
       observer.observe(body);
       fit();
+      // The game's height moves everything below it, so land a #run or #code link again.
+      if (!landed && /^#(how|run|code)$/.test(location.hash)) document.querySelector(location.hash).scrollIntoView();
+      landed = true;
     } catch {
       // Opened from a file:// URL, where the frame can't be measured; keep the default height.
     }
@@ -143,6 +149,7 @@
     el('run-cmd').textContent = lang.run;
     el('docker-line').hidden = !lang.docker;
     el('docker-cmd').textContent = lang.docker || '';
+    if (lang.dockerfile) el('dockerfile-link').href = REPO + lang.dockerfile;
     el('lang-note').hidden = !lang.note;
     el('lang-note').textContent = lang.note || '';
 
@@ -190,14 +197,71 @@
     return sources.get(path);
   }
 
+  /* ---------- Run it yourself ---------- */
+
+  function renderRunPicker(cli) {
+    const select = el('run-lang');
+    select.innerHTML = cli.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
+    const show = () => {
+      const lang = cli.find(l => l.id === select.value);
+      el('run-lang-cmd').textContent = lang.docker;
+      el('run-lang-dockerfile').href = REPO + lang.dockerfile;
+      el('run-lang-dockerfile').textContent = `${lang.name} Dockerfile ↗`;
+    };
+    select.value = 'go';
+    select.onchange = show;
+    show();
+  }
+
+  /* ---------- Sharing ---------- */
+
+  const SHARE_TEXT = 'The 21-card trick, in 15 coding languages and 6 web versions. Think of a card and watch it appear:';
+  const shareUrl = () => location.href.split('#')[0];
+
+  function shareLinks(text, url) {
+    const t = encodeURIComponent(text);
+    const u = encodeURIComponent(url);
+    return [
+      ['WhatsApp', `https://wa.me/?text=${t}%20${u}`],
+      ['X', `https://x.com/intent/post?text=${t}&url=${u}`],
+      ['Facebook', `https://www.facebook.com/sharer/sharer.php?u=${u}`],
+      ['LinkedIn', `https://www.linkedin.com/sharing/share-offsite/?url=${u}`],
+      ['Reddit', `https://www.reddit.com/submit?url=${u}&title=${t}`],
+      ['Email', `mailto:?subject=${encodeURIComponent('The 21-card trick')}&body=${t}%20${u}`],
+    ];
+  }
+
+  document.querySelectorAll('.share').forEach(share => {
+    const menu = share.querySelector('.share-menu');
+    menu.innerHTML = shareLinks(SHARE_TEXT, shareUrl())
+      .map(([name, href]) => `<a href="${href}" target="_blank" rel="noopener">${name}</a>`)
+      .join('') + '<button class="copy-link" type="button">Copy link</button>';
+    copyOnClick(menu.querySelector('.copy-link'), shareUrl, 'Link copied');
+
+    // Phones get the native share sheet; other devices open the menu instead.
+    share.querySelector('summary').addEventListener('click', e => {
+      if (navigator.share && matchMedia('(pointer: coarse)').matches) {
+        e.preventDefault();
+        navigator.share({ title: 'Hocus Pocus · The 21-card trick', text: SHARE_TEXT, url: shareUrl() }).catch(() => {});
+      }
+    });
+  });
+
+  // Close an open share menu when tapping anywhere else.
+  document.addEventListener('click', e => {
+    document.querySelectorAll('.share[open]').forEach(share => {
+      if (!share.contains(e.target)) share.open = false;
+    });
+  });
+
   /* ---------- Copy buttons ---------- */
 
-  function copyOnClick(button, getText) {
+  function copyOnClick(button, getText, done = 'Copied') {
     button.addEventListener('click', async () => {
       const label = button.textContent;
       try {
         await navigator.clipboard.writeText(await getText());
-        button.textContent = 'Copied';
+        button.textContent = done;
       } catch {
         button.textContent = 'Copy failed';
       }

@@ -16,6 +16,8 @@ const SUITS = [['♠', 'Spades'], ['♥', 'Hearts'], ['♣', 'Clubs'], ['♦', '
 const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
 const RANK_NAMES = { A: 'Ace', J: 'Jack', Q: 'Queen', K: 'King' };
 const ROUNDS = 3;
+// Shares point at the public site: a localhost link would mean nothing to a friend.
+const SHARE_URL = 'https://dascondor.github.io/polyHocuspocus/';
 
 function makeCard(id) {
   const rank = RANKS[id % 13];
@@ -53,6 +55,28 @@ function parseDeck(text) {
 const gameLink = (deck, round) => `/?deck=${deck.join('.')}&round=${round}`;
 
 /* ---------- Pages ---------- */
+
+// Plain links, so sharing works with no JavaScript in the browser.
+function shareHtml(card) {
+  const text = `The 21-card trick found my card: the ${card.name}! Think of a card and try it:`;
+  const t = encodeURIComponent(text);
+  const u = encodeURIComponent(SHARE_URL);
+  const links = [
+    ['WhatsApp', `https://wa.me/?text=${t}%20${u}`],
+    ['X', `https://x.com/intent/post?text=${t}&amp;url=${u}`],
+    ['Facebook', `https://www.facebook.com/sharer/sharer.php?u=${u}`],
+    ['Reddit', `https://www.reddit.com/submit?url=${u}&amp;title=${t}`],
+    ['Email', `mailto:?subject=${encodeURIComponent('The 21-card trick')}&amp;body=${t}%20${u}`],
+  ];
+  return `
+    <details class="hp-share">
+      <summary class="hp-secondary">Share</summary>
+      <div class="hp-share-menu">
+        ${links.map(([name, href]) => `<a href="${href}" target="_blank" rel="noopener">${name}</a>`).join('')}
+        <input readonly value="${SHARE_URL}" aria-label="Link to copy">
+      </div>
+    </details>`;
+}
 
 const cardHtml = (card, i, extra = '') => `
   <li class="hp-card${card.red ? ' red' : ''}${extra}" style="--i:${i}" aria-label="${card.name}">
@@ -135,7 +159,7 @@ function revealPage(id) {
         <ul class="hp-cards">${cardHtml(card, 0, ' hp-big')}</ul>
         <p class="hp-name">${card.name}</p>
       </div>`,
-    action: '<a class="hp-primary" href="/">Play again</a>',
+    action: `<a class="hp-primary" href="/">Play again</a>${shareHtml(card)}`,
   });
 }
 

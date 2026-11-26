@@ -9,7 +9,7 @@ import os
 import random
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import parse_qs, urlsplit
+from urllib.parse import parse_qs, quote, urlsplit
 
 PORT = int(os.environ.get("PORT", 8000))
 CSS = (Path(__file__).resolve().parent.parent / "shared" / "hocuspocus.css").read_bytes()
@@ -18,6 +18,8 @@ SUITS = [("♠", "Spades"), ("♥", "Hearts"), ("♣", "Clubs"), ("♦", "Diamon
 RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
 RANK_NAMES = {"A": "Ace", "J": "Jack", "Q": "Queen", "K": "King"}
 ROUNDS = 3
+# Shares point at the public site: a localhost link would mean nothing to a friend.
+SHARE_URL = "https://dascondor.github.io/polyHocuspocus/"
 
 
 def card(card_id):
@@ -63,6 +65,28 @@ def game_link(deck, round_no):
 
 
 # ---------- Pages ----------
+
+def share_html(c):
+    """Plain links, so sharing works with no JavaScript in the browser."""
+    t = quote(f"The 21-card trick found my card: the {c['name']}! Think of a card and try it:")
+    u = quote(SHARE_URL, safe="")
+    links = [
+        ("WhatsApp", f"https://wa.me/?text={t}%20{u}"),
+        ("X", f"https://x.com/intent/post?text={t}&amp;url={u}"),
+        ("Facebook", f"https://www.facebook.com/sharer/sharer.php?u={u}"),
+        ("Reddit", f"https://www.reddit.com/submit?url={u}&amp;title={t}"),
+        ("Email", f"mailto:?subject={quote('The 21-card trick')}&amp;body={t}%20{u}"),
+    ]
+    items = "".join(f'<a href="{href}" target="_blank" rel="noopener">{name}</a>' for name, href in links)
+    return f"""
+    <details class="hp-share">
+      <summary class="hp-secondary">Share</summary>
+      <div class="hp-share-menu">
+        {items}
+        <input readonly value="{SHARE_URL}" aria-label="Link to copy">
+      </div>
+    </details>"""
+
 
 def card_html(c, i, extra=""):
     red = " red" if c["red"] else ""
@@ -145,7 +169,7 @@ def reveal_page(card_id):
         "After three rounds your card always ends up 11th in the deck. That is the whole trick.",
         f'<div class="hp-reveal"><ul class="hp-cards">{card_html(c, 0, " hp-big")}</ul>'
         f'<p class="hp-name">{c["name"]}</p></div>',
-        '<a class="hp-primary" href="/">Play again</a>',
+        '<a class="hp-primary" href="/">Play again</a>' + share_html(c),
     )
 
 

@@ -5,6 +5,7 @@ const SUITS = [['♠', 'Spades'], ['♥', 'Hearts'], ['♣', 'Clubs'], ['♦', '
 const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
 const RANK_NAMES = { A: 'Ace', J: 'Jack', Q: 'Queen', K: 'King' };
 const ROUNDS = 3;
+const SHARE_URL = 'https://dascondor.github.io/polyHocuspocus/#play/web-react';
 
 function makeCard(id) {
   const rank = RANKS[id % 13];
@@ -30,6 +31,50 @@ function collect(piles, chosen) {
   const others = [0, 1, 2].filter(p => p !== chosen);
   if (Math.random() < 0.5) others.reverse();
   return [...piles[others[0]], ...piles[chosen], ...piles[others[1]]];
+}
+
+function shareLinks(text, url) {
+  const t = encodeURIComponent(text);
+  const u = encodeURIComponent(url);
+  return [
+    ['WhatsApp', `https://wa.me/?text=${t}%20${u}`],
+    ['X', `https://x.com/intent/post?text=${t}&url=${u}`],
+    ['Facebook', `https://www.facebook.com/sharer/sharer.php?u=${u}`],
+    ['Reddit', `https://www.reddit.com/submit?url=${u}&title=${t}`],
+    ['Email', `mailto:?subject=${encodeURIComponent('The 21-card trick')}&body=${t}%20${u}`],
+  ];
+}
+
+// Phones get the native share sheet; other devices open the menu instead.
+function Share({ card }) {
+  const [copyLabel, setCopyLabel] = useState('Copy link');
+  const text = `The 21-card trick found my card: the ${card.name}! Think of a card and try it:`;
+
+  function shareNatively(e) {
+    if (navigator.share && matchMedia('(pointer: coarse)').matches) {
+      e.preventDefault();
+      navigator.share({ title: 'Hocus Pocus', text, url: SHARE_URL }).catch(() => {});
+    }
+  }
+
+  function copyLink() {
+    navigator.clipboard.writeText(SHARE_URL).then(
+      () => setCopyLabel('Link copied'),
+      () => setCopyLabel('Copy failed'),
+    );
+  }
+
+  return (
+    <details className="hp-share">
+      <summary className="hp-secondary" onClick={shareNatively}>Share</summary>
+      <div className="hp-share-menu">
+        {shareLinks(text, SHARE_URL).map(([name, href]) => (
+          <a key={name} href={href} target="_blank" rel="noopener">{name}</a>
+        ))}
+        <button className="hp-copy" type="button" onClick={copyLink}>{copyLabel}</button>
+      </div>
+    </details>
+  );
 }
 
 function newGame() {
@@ -138,7 +183,10 @@ export default function App() {
           </button>
         )}
         {phase === 'reveal' && (
-          <button className="hp-primary" onClick={() => setGame(newGame())}>Play again</button>
+          <>
+            <button className="hp-primary" onClick={() => setGame(newGame())}>Play again</button>
+            <Share card={deck[10]} />
+          </>
         )}
       </div>
       <p className="hp-made">Built with React</p>

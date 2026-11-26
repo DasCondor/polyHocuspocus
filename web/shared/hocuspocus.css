@@ -8,7 +8,8 @@
  *     div.hp-table > div.hp-piles > section.hp-pile
  *       h2, ul.hp-cards > li.hp-card(.red), .hp-pick
  *     div.hp-reveal > .hp-card.hp-big, p.hp-name
- *     div.hp-actions > .hp-primary
+ *     div.hp-actions > .hp-primary, details.hp-share (reveal screen only)
+ *       summary.hp-secondary, div.hp-share-menu > a, .hp-copy | input
  *     p.hp-made
  */
 
@@ -243,6 +244,95 @@ body {
 
 .hp-actions {
   margin-top: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* Share: phones open the native share sheet; elsewhere this menu opens. */
+
+.hp-share {
+  position: relative;
+}
+
+.hp-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 50px;
+  padding: 13px 26px;
+  border: 1px solid var(--hp-gold);
+  border-radius: 10px;
+  color: var(--hp-gold);
+  font: 700 17px/1.4 var(--hp-font);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.hp-secondary::-webkit-details-marker {
+  display: none;
+}
+
+.hp-secondary:hover,
+.hp-share[open] .hp-secondary {
+  background: #e2c7851a;
+}
+
+.hp-secondary:focus-visible {
+  outline: 3px solid var(--hp-gold-hover);
+  outline-offset: 3px;
+}
+
+.hp-share-menu {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 250px;
+  display: grid;
+  gap: 4px;
+  padding: 8px;
+  border: 1px solid #ffffff2a;
+  border-radius: 12px;
+  background: #13261f;
+  box-shadow: 0 16px 40px #000a;
+  text-align: left;
+}
+
+.hp-share-menu a,
+.hp-copy {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--hp-text);
+  font: 500 16px/1.5 var(--hp-font);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.hp-share-menu a:hover,
+.hp-copy:hover {
+  background: #ffffff12;
+}
+
+.hp-share-menu input {
+  width: 100%;
+  margin-top: 4px;
+  padding: 9px 10px;
+  border: 1px solid #ffffff2a;
+  border-radius: 8px;
+  background: #0b1714;
+  color: var(--hp-muted);
+  font: 14px ui-monospace, Consolas, monospace;
 }
 
 .hp-primary {
@@ -348,5 +438,18 @@ body {
 
   .hp-pick kbd {
     display: none;
+  }
+
+  /* An open share menu drops in below the buttons instead of floating. */
+  .hp-share[open] {
+    flex-basis: 100%;
+  }
+
+  .hp-share-menu {
+    position: static;
+    transform: none;
+    width: 100%;
+    max-width: 340px;
+    margin: 8px auto 0;
   }
 }

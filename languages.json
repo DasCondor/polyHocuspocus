@@ -9,7 +9,8 @@
   ],
   "run": "python python/hocuspocus.py",
   "group": "cli",
-  "docker": "docker compose run --rm python"
+  "docker": "docker run -it --rm ghcr.io/dascondor/polyhocuspocus:python",
+  "dockerfile": "docker/python.Dockerfile"
  },
  {
   "id": "javascript",
@@ -21,7 +22,8 @@
   ],
   "run": "node javascript/hocuspocus.js",
   "group": "cli",
-  "docker": "docker compose run --rm javascript"
+  "docker": "docker run -it --rm ghcr.io/dascondor/polyhocuspocus:javascript",
+  "dockerfile": "docker/javascript.Dockerfile"
  },
  {
   "id": "typescript",
@@ -34,7 +36,8 @@
   "run": "node typescript/hocuspocus.ts",
   "note": "Node.js 22.18 or later runs TypeScript directly.",
   "group": "cli",
-  "docker": "docker compose run --rm typescript"
+  "docker": "docker run -it --rm ghcr.io/dascondor/polyhocuspocus:typescript",
+  "dockerfile": "docker/typescript.Dockerfile"
  },
  {
   "id": "go",
@@ -46,7 +49,8 @@
   ],
   "run": "go run go/hocuspocus.go",
   "group": "cli",
-  "docker": "docker compose run --rm go"
+  "docker": "docker run -it --rm ghcr.io/dascondor/polyhocuspocus:go",
+  "dockerfile": "docker/go.Dockerfile"
  },
  {
   "id": "rust",
@@ -59,7 +63,8 @@
   "run": "rustc -O rust/hocuspocus.rs -o hocuspocus && ./hocuspocus",
   "note": "No crates: a tiny xorshift generator stands in for rand.",
   "group": "cli",
-  "docker": "docker compose run --rm rust"
+  "docker": "docker run -it --rm ghcr.io/dascondor/polyhocuspocus:rust",
+  "dockerfile": "docker/rust.Dockerfile"
  },
  {
   "id": "c",
@@ -71,7 +76,8 @@
   ],
   "run": "cc -O2 c/hocuspocus.c -o hocuspocus && ./hocuspocus",
   "group": "cli",
-  "docker": "docker compose run --rm c"
+  "docker": "docker run -it --rm ghcr.io/dascondor/polyhocuspocus:c",
+  "dockerfile": "docker/c.Dockerfile"
  },
  {
   "id": "cpp",
@@ -83,7 +89,8 @@
   ],
   "run": "c++ -std=c++17 -O2 cpp/hocuspocus.cpp -o hocuspocus && ./hocuspocus",
   "group": "cli",
-  "docker": "docker compose run --rm cpp"
+  "docker": "docker run -it --rm ghcr.io/dascondor/polyhocuspocus:cpp",
+  "dockerfile": "docker/cpp.Dockerfile"
  },
  {
   "id": "csharp",
@@ -96,7 +103,8 @@
   ],
   "run": "dotnet run --project csharp",
   "group": "cli",
-  "docker": "docker compose run --rm csharp"
+  "docker": "docker run -it --rm ghcr.io/dascondor/polyhocuspocus:csharp",
+  "dockerfile": "docker/csharp.Dockerfile"
  },
  {
   "id": "java",
@@ -108,7 +116,8 @@
   ],
   "run": "java java/HocusPocus.java",
   "group": "cli",
-  "docker": "docker compose run --rm java"
+  "docker": "docker run -it --rm ghcr.io/dascondor/polyhocuspocus:java",
+  "dockerfile": "docker/java.Dockerfile"
  },
  {
   "id": "kotlin",
@@ -120,7 +129,8 @@
   ],
   "run": "kotlinc kotlin/hocuspocus.kt -include-runtime -d hocuspocus.jar && java -jar hocuspocus.jar",
   "group": "cli",
-  "docker": "docker compose run --rm kotlin"
+  "docker": "docker run -it --rm ghcr.io/dascondor/polyhocuspocus:kotlin",
+  "dockerfile": "docker/kotlin.Dockerfile"
  },
  {
   "id": "ruby",
@@ -132,7 +142,8 @@
   ],
   "run": "ruby ruby/hocuspocus.rb",
   "group": "cli",
-  "docker": "docker compose run --rm ruby"
+  "docker": "docker run -it --rm ghcr.io/dascondor/polyhocuspocus:ruby",
+  "dockerfile": "docker/ruby.Dockerfile"
  },
  {
   "id": "lua",
@@ -145,7 +156,8 @@
   "run": "lua lua/hocuspocus.lua",
   "note": "Lua counts from 1, so the reveal is deck[11].",
   "group": "cli",
-  "docker": "docker compose run --rm lua"
+  "docker": "docker run -it --rm ghcr.io/dascondor/polyhocuspocus:lua",
+  "dockerfile": "docker/lua.Dockerfile"
  },
  {
   "id": "perl",
@@ -157,7 +169,8 @@
   ],
   "run": "perl perl/hocuspocus.pl",
   "group": "cli",
-  "docker": "docker compose run --rm perl"
+  "docker": "docker run -it --rm ghcr.io/dascondor/polyhocuspocus:perl",
+  "dockerfile": "docker/perl.Dockerfile"
  },
  {
   "id": "bash",
@@ -170,7 +183,8 @@
   "run": "bash bash/hocuspocus.sh",
   "note": "No nested arrays in Bash, so piles are read straight out of the deck.",
   "group": "cli",
-  "docker": "docker compose run --rm bash"
+  "docker": "docker run -it --rm ghcr.io/dascondor/polyhocuspocus:bash",
+  "dockerfile": "docker/bash.Dockerfile"
  },
  {
   "id": "powershell",
@@ -182,7 +196,8 @@
   ],
   "run": "pwsh powershell/hocuspocus.ps1",
   "group": "cli",
-  "docker": "docker compose run --rm powershell"
+  "docker": "docker run -it --rm ghcr.io/dascondor/polyhocuspocus:powershell",
+  "dockerfile": "docker/powershell.Dockerfile"
  },
  {
   "id": "original",
@@ -210,8 +225,9 @@
   ],
   "play": "web/vanilla/",
   "run": "Open web/vanilla/index.html in a browser",
-  "docker": "docker compose up site",
-  "note": "No framework and no build step. hocuspocus.css is the look every web version shares."
+  "docker": "docker run --rm -p 8080:80 ghcr.io/dascondor/polyhocuspocus:site",
+  "note": "No framework and no build step. hocuspocus.css is the look every web version shares.",
+  "dockerfile": "docker/site.Dockerfile"
  },
  {
   "id": "web-angular",
@@ -226,8 +242,9 @@
   ],
   "play": "web/angular/",
   "run": "cd web/angular && npm install && npm start",
-  "docker": "docker compose up site",
-  "note": "Angular with signals and the built-in @if / @for control flow."
+  "docker": "docker run --rm -p 8080:80 ghcr.io/dascondor/polyhocuspocus:site",
+  "note": "Angular with signals and the built-in @if / @for control flow.",
+  "dockerfile": "docker/site.Dockerfile"
  },
  {
   "id": "web-react",
@@ -242,8 +259,9 @@
   ],
   "play": "web/react/",
   "run": "cd web/react && npm install && npm run dev",
-  "docker": "docker compose up site",
-  "note": "A React function component with hooks, built with Vite."
+  "docker": "docker run --rm -p 8080:80 ghcr.io/dascondor/polyhocuspocus:site",
+  "note": "A React function component with hooks, built with Vite.",
+  "dockerfile": "docker/site.Dockerfile"
  },
  {
   "id": "web-vue",
@@ -258,8 +276,9 @@
   ],
   "play": "web/vue/",
   "run": "cd web/vue && npm install && npm run dev",
-  "docker": "docker compose up site",
-  "note": "A Vue single-file component using the Composition API, built with Vite."
+  "docker": "docker run --rm -p 8080:80 ghcr.io/dascondor/polyhocuspocus:site",
+  "note": "A Vue single-file component using the Composition API, built with Vite.",
+  "dockerfile": "docker/site.Dockerfile"
  },
  {
   "id": "web-node",
@@ -275,8 +294,9 @@
    "preview": "previews/node.png"
   },
   "run": "node web/node/server.js",
-  "docker": "docker compose up node-web",
-  "note": "Every page is built on the server and the game lives in the links, so the browser runs no JavaScript. No npm packages."
+  "docker": "docker run --rm -p 3000:3000 ghcr.io/dascondor/polyhocuspocus:node-web",
+  "note": "Every page is built on the server and the game lives in the links, so the browser runs no JavaScript. No npm packages.",
+  "dockerfile": "docker/node-web.Dockerfile"
  },
  {
   "id": "web-python",
@@ -292,7 +312,8 @@
    "preview": "previews/python.png"
   },
   "run": "python web/python/server.py",
-  "docker": "docker compose up python-web",
-  "note": "The same server-rendered game using only Python's standard library."
+  "docker": "docker run --rm -p 8000:8000 ghcr.io/dascondor/polyhocuspocus:python-web",
+  "note": "The same server-rendered game using only Python's standard library.",
+  "dockerfile": "docker/python-web.Dockerfile"
  }
 ]

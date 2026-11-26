@@ -1,110 +1,133 @@
-# Run any version without installing its language:
+# Every version as a Docker service. Images are published to
+# https://github.com/DasCondor/polyHocuspocus/pkgs/container/polyhocuspocus
 #
+#   docker compose up                    build and start the website (:8080) and both servers (:3000, :8000)
 #   docker compose run --rm go           play the Go version in your terminal
-#   docker compose run --rm go --test    1,000-game self-test
-#   docker compose up                    the website and both web servers
+#   docker compose run --rm go --test    run its 1,000-game self-test
+#   docker compose pull                  download the published images instead of building them
 #
 # Terminal versions sit in the "cli" profile so `docker compose up` skips them.
 
+x-build: &labels
+  org.opencontainers.image.source: https://github.com/DasCondor/polyHocuspocus
+
 services:
   python:
-    build: { context: ., dockerfile: docker/python.Dockerfile }
+    image: ghcr.io/dascondor/polyhocuspocus:python
+    build: { context: ., dockerfile: docker/python.Dockerfile, labels: *labels }
     profiles: [cli]
     stdin_open: true
     tty: true
 
   javascript:
-    build: { context: ., dockerfile: docker/javascript.Dockerfile }
+    image: ghcr.io/dascondor/polyhocuspocus:javascript
+    build: { context: ., dockerfile: docker/javascript.Dockerfile, labels: *labels }
     profiles: [cli]
     stdin_open: true
     tty: true
 
   typescript:
-    build: { context: ., dockerfile: docker/typescript.Dockerfile }
+    image: ghcr.io/dascondor/polyhocuspocus:typescript
+    build: { context: ., dockerfile: docker/typescript.Dockerfile, labels: *labels }
     profiles: [cli]
     stdin_open: true
     tty: true
 
   go:
-    build: { context: ., dockerfile: docker/go.Dockerfile }
+    image: ghcr.io/dascondor/polyhocuspocus:go
+    build: { context: ., dockerfile: docker/go.Dockerfile, labels: *labels }
     profiles: [cli]
     stdin_open: true
     tty: true
 
   rust:
-    build: { context: ., dockerfile: docker/rust.Dockerfile }
+    image: ghcr.io/dascondor/polyhocuspocus:rust
+    build: { context: ., dockerfile: docker/rust.Dockerfile, labels: *labels }
     profiles: [cli]
     stdin_open: true
     tty: true
 
   c:
-    build: { context: ., dockerfile: docker/c.Dockerfile }
+    image: ghcr.io/dascondor/polyhocuspocus:c
+    build: { context: ., dockerfile: docker/c.Dockerfile, labels: *labels }
     profiles: [cli]
     stdin_open: true
     tty: true
 
   cpp:
-    build: { context: ., dockerfile: docker/cpp.Dockerfile }
+    image: ghcr.io/dascondor/polyhocuspocus:cpp
+    build: { context: ., dockerfile: docker/cpp.Dockerfile, labels: *labels }
     profiles: [cli]
     stdin_open: true
     tty: true
 
   csharp:
-    build: { context: ., dockerfile: docker/csharp.Dockerfile }
+    image: ghcr.io/dascondor/polyhocuspocus:csharp
+    build: { context: ., dockerfile: docker/csharp.Dockerfile, labels: *labels }
     profiles: [cli]
     stdin_open: true
     tty: true
 
   java:
-    build: { context: ., dockerfile: docker/java.Dockerfile }
+    image: ghcr.io/dascondor/polyhocuspocus:java
+    build: { context: ., dockerfile: docker/java.Dockerfile, labels: *labels }
     profiles: [cli]
     stdin_open: true
     tty: true
 
   kotlin:
-    build: { context: ., dockerfile: docker/kotlin.Dockerfile }
+    image: ghcr.io/dascondor/polyhocuspocus:kotlin
+    build: { context: ., dockerfile: docker/kotlin.Dockerfile, labels: *labels }
     profiles: [cli]
     stdin_open: true
     tty: true
 
   ruby:
-    build: { context: ., dockerfile: docker/ruby.Dockerfile }
+    image: ghcr.io/dascondor/polyhocuspocus:ruby
+    build: { context: ., dockerfile: docker/ruby.Dockerfile, labels: *labels }
     profiles: [cli]
     stdin_open: true
     tty: true
 
   lua:
-    build: { context: ., dockerfile: docker/lua.Dockerfile }
+    image: ghcr.io/dascondor/polyhocuspocus:lua
+    build: { context: ., dockerfile: docker/lua.Dockerfile, labels: *labels }
     profiles: [cli]
     stdin_open: true
     tty: true
 
   perl:
-    build: { context: ., dockerfile: docker/perl.Dockerfile }
+    image: ghcr.io/dascondor/polyhocuspocus:perl
+    build: { context: ., dockerfile: docker/perl.Dockerfile, labels: *labels }
     profiles: [cli]
     stdin_open: true
     tty: true
 
   bash:
-    build: { context: ., dockerfile: docker/bash.Dockerfile }
+    image: ghcr.io/dascondor/polyhocuspocus:bash
+    build: { context: ., dockerfile: docker/bash.Dockerfile, labels: *labels }
     profiles: [cli]
     stdin_open: true
     tty: true
 
   powershell:
-    build: { context: ., dockerfile: docker/powershell.Dockerfile }
+    image: ghcr.io/dascondor/polyhocuspocus:powershell
+    build: { context: ., dockerfile: docker/powershell.Dockerfile, labels: *labels }
     profiles: [cli]
     stdin_open: true
     tty: true
 
-  site:  # every web version plus the code viewer: http://localhost:8080
-    build: { context: ., dockerfile: docker/site.Dockerfile }
+  site:  # website with every web version and the code viewer: http://localhost:8080
+    image: ghcr.io/dascondor/polyhocuspocus:site
+    build: { context: ., dockerfile: docker/site.Dockerfile, labels: *labels }
     ports: ["8080:80"]
 
   node-web:  # Node.js server version: http://localhost:3000
-    build: { context: ., dockerfile: docker/node-web.Dockerfile }
+    image: ghcr.io/dascondor/polyhocuspocus:node-web
+    build: { context: ., dockerfile: docker/node-web.Dockerfile, labels: *labels }
     ports: ["3000:3000"]
 
   python-web:  # Python server version: http://localhost:8000
-    build: { context: ., dockerfile: docker/python-web.Dockerfile }
+    image: ghcr.io/dascondor/polyhocuspocus:python-web
+    build: { context: ., dockerfile: docker/python-web.Dockerfile, labels: *labels }
     ports: ["8000:8000"]

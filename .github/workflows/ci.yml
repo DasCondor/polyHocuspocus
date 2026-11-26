@@ -77,6 +77,9 @@ jobs:
   docker:
     name: Docker images
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write # publish to ghcr.io/dascondor/polyhocuspocus
     steps:
       - uses: actions/checkout@v7
 
@@ -101,6 +104,12 @@ jobs:
           python3 tools/test_web_server.py http://127.0.0.1:8000 50
           curl -fsS http://127.0.0.1:8080/web/angular/ | grep -q app-root
           docker compose down
+
+      - name: Publish the images
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+          docker compose --profile cli push
 
   web:
     name: Web versions

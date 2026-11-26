@@ -15,6 +15,7 @@ const SUITS = [['♠', 'Spades'], ['♥', 'Hearts'], ['♣', 'Clubs'], ['♦', '
 const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
 const RANK_NAMES: Record<string, string> = { A: 'Ace', J: 'Jack', Q: 'Queen', K: 'King' };
 const ROUNDS = 3;
+const SHARE_URL = 'https://dascondor.github.io/polyHocuspocus/#play/web-angular';
 
 function makeCard(id: number): Card {
   const rank = RANKS[id % 13];
@@ -40,6 +41,19 @@ function collect(piles: Card[][], chosen: number): Card[] {
   const others = [0, 1, 2].filter(p => p !== chosen);
   if (Math.random() < 0.5) others.reverse();
   return [...piles[others[0]], ...piles[chosen], ...piles[others[1]]];
+}
+
+/** Ready-made share links for the reveal screen: [name, href]. */
+function shareLinks(text: string, url: string): [string, string][] {
+  const t = encodeURIComponent(text);
+  const u = encodeURIComponent(url);
+  return [
+    ['WhatsApp', `https://wa.me/?text=${t}%20${u}`],
+    ['X', `https://x.com/intent/post?text=${t}&url=${u}`],
+    ['Facebook', `https://www.facebook.com/sharer/sharer.php?u=${u}`],
+    ['Reddit', `https://www.reddit.com/submit?url=${u}&title=${t}`],
+    ['Email', `mailto:?subject=${encodeURIComponent('The 21-card trick')}&body=${t}%20${u}`],
+  ];
 }
 
 @Component({
@@ -109,6 +123,15 @@ function collect(piles: Card[][], chosen: number): Card[] {
           <button class="hp-primary" (click)="startChoosing()">I've got my card</button>
         } @else if (phase() === 'reveal') {
           <button class="hp-primary" (click)="newGame()">Play again</button>
+          <details class="hp-share">
+            <summary class="hp-secondary" (click)="shareNatively($event)">Share</summary>
+            <div class="hp-share-menu">
+              @for (link of shareLinks(); track link[0]) {
+                <a [href]="link[1]" target="_blank" rel="noopener">{{ link[0] }}</a>
+              }
+              <button class="hp-copy" type="button" (click)="copyLink()">{{ copyLabel() }}</button>
+            </div>
+          </details>
         }
       </div>
       <p class="hp-made">Built with Angular</p>
@@ -125,6 +148,12 @@ export class App {
   /** After three rounds the remembered card is always the 11th card. */
   protected readonly revealed = computed(() => this.deck()[10]);
 
+  protected readonly shareText = computed(
+    () => `The 21-card trick found my card: the ${this.revealed().name}! Think of a card and try it:`,
+  );
+  protected readonly shareLinks = computed(() => shareLinks(this.shareText(), SHARE_URL));
+  protected readonly copyLabel = signal('Copy link');
+
   protected readonly steps = computed(() => {
     const now = ['remember', 'choose', 'reveal'].indexOf(this.phase());
     const labels = ['Remember', this.phase() === 'choose' ? `Choose ${this.round()}/${ROUNDS}` : 'Choose', 'Reveal'];
@@ -137,6 +166,7 @@ export class App {
     this.piles.set(deal(deck));
     this.round.set(0);
     this.phase.set('remember');
+    this.copyLabel.set('Copy link');
   }
 
   protected startChoosing(): void {
@@ -154,6 +184,21 @@ export class App {
       this.round.update(r => r + 1);
       this.piles.set(deal(deck));
     }
+  }
+
+  /** Phones get the native share sheet; other devices open the menu instead. */
+  protected shareNatively(event: Event): void {
+    if (navigator.share && matchMedia('(pointer: coarse)').matches) {
+      event.preventDefault();
+      navigator.share({ title: 'Hocus Pocus', text: this.shareText(), url: SHARE_URL }).catch(() => {});
+    }
+  }
+
+  protected copyLink(): void {
+    navigator.clipboard.writeText(SHARE_URL).then(
+      () => this.copyLabel.set('Link copied'),
+      () => this.copyLabel.set('Copy failed'),
+    );
   }
 
   protected onKey(event: KeyboardEvent): void {

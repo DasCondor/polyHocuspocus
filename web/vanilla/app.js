@@ -5,6 +5,7 @@ const SUITS = [['♠', 'Spades'], ['♥', 'Hearts'], ['♣', 'Clubs'], ['♦', '
 const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
 const RANK_NAMES = { A: 'Ace', J: 'Jack', Q: 'Queen', K: 'King' };
 const ROUNDS = 3;
+const SHARE_URL = 'https://dascondor.github.io/polyHocuspocus/#play/web-vanilla';
 
 function makeCard(id) {
   const rank = RANKS[id % 13];
@@ -31,6 +32,40 @@ function collect(piles, chosen) {
   if (Math.random() < 0.5) others.reverse();
   return [...piles[others[0]], ...piles[chosen], ...piles[others[1]]];
 }
+
+/* ---------- Sharing ---------- */
+
+const shareText = card => `The 21-card trick found my card: the ${card.name}! Think of a card and try it:`;
+
+function shareLinks(text, url) {
+  const t = encodeURIComponent(text);
+  const u = encodeURIComponent(url);
+  return [
+    ['WhatsApp', `https://wa.me/?text=${t}%20${u}`],
+    ['X', `https://x.com/intent/post?text=${t}&url=${u}`],
+    ['Facebook', `https://www.facebook.com/sharer/sharer.php?u=${u}`],
+    ['Reddit', `https://www.reddit.com/submit?url=${u}&title=${t}`],
+    ['Email', `mailto:?subject=${encodeURIComponent('The 21-card trick')}&body=${t}%20${u}`],
+  ];
+}
+
+// Phones get the native share sheet; other devices open the menu instead.
+function shareNatively(event, text, url) {
+  if (navigator.share && matchMedia('(pointer: coarse)').matches) {
+    event.preventDefault();
+    navigator.share({ title: 'Hocus Pocus', text, url }).catch(() => {});
+  }
+}
+
+const shareHtml = card => `
+  <details class="hp-share">
+    <summary class="hp-secondary">Share</summary>
+    <div class="hp-share-menu">
+      ${shareLinks(shareText(card), SHARE_URL)
+        .map(([name, href]) => `<a href="${href}" target="_blank" rel="noopener">${name}</a>`).join('')}
+      <button class="hp-copy" type="button" data-action="copy">Copy link</button>
+    </div>
+  </details>`;
 
 /* ---------- State ---------- */
 
@@ -91,7 +126,7 @@ function render() {
         <ul class="hp-cards">${cardHtml(deck[10], 0, ' hp-big')}</ul>
         <p class="hp-name">${deck[10].name}</p>
       </div>`;
-    action = '<button class="hp-primary" data-action="again">Play again</button>';
+    action = `<button class="hp-primary" data-action="again">Play again</button>${shareHtml(deck[10])}`;
   } else {
     if (phase === 'remember') {
       title = 'Think of a card';
@@ -127,11 +162,17 @@ function render() {
 /* ---------- Input ---------- */
 
 document.addEventListener('click', e => {
+  if (e.target.closest('.hp-share summary')) return shareNatively(e, shareText(deck[10]), SHARE_URL);
   const button = e.target.closest('button');
   if (!button) return;
   if (button.dataset.pile) choose(Number(button.dataset.pile));
   else if (button.dataset.action === 'start') startChoosing();
   else if (button.dataset.action === 'again') newGame();
+  else if (button.dataset.action === 'copy') {
+    navigator.clipboard.writeText(SHARE_URL).then(
+      () => { button.textContent = 'Link copied'; },
+      () => { button.textContent = 'Copy failed'; });
+  }
 });
 
 document.addEventListener('keydown', e => {
