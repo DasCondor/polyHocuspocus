@@ -46,6 +46,7 @@ Think of a card. Point to its pile three times. Watch it appear.
 - **15 coding languages:** the same trick as a terminal program in each, from Python and Go to Bash and PowerShell.
 - **Docker images for everything:** run any version with one `docker run` command, or build them all with `docker compose up`.
 - **Easy to share:** a Share button on the page and on every "Your card is…" screen. Phones open the native share sheet; computers get WhatsApp, X, Facebook, Reddit, email and Copy link. Shared links show a preview card.
+- **Buy me a coffee:** a ☕ button beside **Play again** after every trick, and at the bottom of the website.
 - **Phone friendly:** large text, big tap targets, and layouts tested at phone size.
 - **Tested on every push:** each version plays thousands of games against itself to prove the trick never misses.
 
@@ -56,7 +57,7 @@ Think of a card. Point to its pile three times. Watch it appear.
 <table align="center">
   <tr>
     <td align="center"><img src="media/phone-play.png" alt="Choosing a web version on a phone" width="250"><br><sub>Pick a version</sub></td>
-    <td align="center"><img src="media/phone-reveal.png" alt="The reveal screen with Play again and Share buttons" width="250"><br><sub>The reveal, with Share</sub></td>
+    <td align="center"><img src="media/phone-reveal.png" alt="The reveal screen with Play again, Share and Buy me a coffee buttons" width="250"><br><sub>The reveal: play again, share, or buy me a coffee</sub></td>
     <td align="center"><img src="media/phone-run.png" alt="The Run it yourself section with Docker commands" width="250"><br><sub>Run it with Docker</sub></td>
   </tr>
 </table>
@@ -184,7 +185,7 @@ The Node.js and Python versions build every page on the server and keep the game
 ## 📱 Share it
 
 - **On the website:** the **Share** button under the title, or in the footer.
-- **After a trick:** every "Your card is…" screen has a **Share** button next to **Play again**, with the card it found in the message.
+- **After a trick:** every "Your card is…" screen has **Share** and **☕ Buy me a coffee** buttons next to **Play again**. The share message names the card it found.
 - **On a phone** it opens your phone's own share sheet. **On a computer** it offers WhatsApp, X, Facebook, Reddit, email and Copy link.
 - The two server versions share with plain links, so sharing works there with no JavaScript too.
 
@@ -271,7 +272,7 @@ This project grew out of [pyHocuspocus](https://github.com/DasCondor/pyHocuspocu
   <img src=".github/dascondor-logo.png" alt="DasCondor logo" width="64" height="64" align="left">
 </a>
 
-If this project made you smile or helped you learn something, you can **[buy me a coffee](https://buymeacoffee.com/dascondor)** to support future work. Contributions are voluntary, and sharing the trick with a friend helps too.
+If this project made you smile or helped you learn something, you can **[buy me a coffee](https://buymeacoffee.com/dascondor)** to support future work. The ☕ button also appears next to **Play again** after every trick and at the bottom of the website. Contributions are voluntary, and sharing the trick with a friend helps too.
 
 <br clear="left">
 

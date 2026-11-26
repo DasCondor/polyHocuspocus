@@ -186,6 +186,7 @@ export default function App() {
           <>
             <button className="hp-primary" onClick={() => setGame(newGame())}>Play again</button>
             <Share card={deck[10]} />
+            <a className="hp-coffee" href="https://buymeacoffee.com/dascondor" target="_blank" rel="noopener">☕ Buy me a coffee</a>
           </>
         )}
       </div>

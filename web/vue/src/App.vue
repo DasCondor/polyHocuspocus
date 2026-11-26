@@ -169,6 +169,7 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKey));
             <button class="hp-copy" type="button" @click="copyLink">{{ copyLabel }}</button>
           </div>
         </details>
+        <a class="hp-coffee" href="https://buymeacoffee.com/dascondor" target="_blank" rel="noopener">☕ Buy me a coffee</a>
       </template>
     </div>
     <p class="hp-made">Built with Vue</p>

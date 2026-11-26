@@ -169,7 +169,8 @@ def reveal_page(card_id):
         "After three rounds your card always ends up 11th in the deck. That is the whole trick.",
         f'<div class="hp-reveal"><ul class="hp-cards">{card_html(c, 0, " hp-big")}</ul>'
         f'<p class="hp-name">{c["name"]}</p></div>',
-        '<a class="hp-primary" href="/">Play again</a>' + share_html(c),
+        '<a class="hp-primary" href="/">Play again</a>' + share_html(c)
+        + '<a class="hp-coffee" href="https://buymeacoffee.com/dascondor" target="_blank" rel="noopener">☕ Buy me a coffee</a>',
     )
 
 

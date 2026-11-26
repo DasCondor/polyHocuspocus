@@ -8,7 +8,7 @@
  *     div.hp-table > div.hp-piles > section.hp-pile
  *       h2, ul.hp-cards > li.hp-card(.red), .hp-pick
  *     div.hp-reveal > .hp-card.hp-big, p.hp-name
- *     div.hp-actions > .hp-primary, details.hp-share (reveal screen only)
+ *     div.hp-actions > .hp-primary, details.hp-share, a.hp-coffee (last two on the reveal screen)
  *       summary.hp-secondary, div.hp-share-menu > a, .hp-copy | input
  *     p.hp-made
  */
@@ -249,6 +249,30 @@ body {
   align-items: flex-start;
   flex-wrap: wrap;
   gap: 12px;
+}
+
+/* Buy me a coffee, beside Play again and Share on the reveal screen. */
+
+.hp-coffee {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 50px;
+  padding: 13px 22px;
+  border-radius: 10px;
+  background: #ffdd00;
+  color: #1b1b1b;
+  font: 700 17px/1.4 var(--hp-font);
+  text-decoration: none;
+}
+
+.hp-coffee:hover {
+  background: #ffe74d;
+}
+
+.hp-coffee:focus-visible {
+  outline: 3px solid var(--hp-gold-hover);
+  outline-offset: 3px;
 }
 
 /* Share: phones open the native share sheet; elsewhere this menu opens. */

@@ -159,7 +159,8 @@ function revealPage(id) {
         <ul class="hp-cards">${cardHtml(card, 0, ' hp-big')}</ul>
         <p class="hp-name">${card.name}</p>
       </div>`,
-    action: `<a class="hp-primary" href="/">Play again</a>${shareHtml(card)}`,
+    action: `<a class="hp-primary" href="/">Play again</a>${shareHtml(card)}
+      <a class="hp-coffee" href="https://buymeacoffee.com/dascondor" target="_blank" rel="noopener">☕ Buy me a coffee</a>`,
   });
 }
 

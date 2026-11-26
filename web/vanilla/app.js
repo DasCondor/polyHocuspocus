@@ -126,7 +126,8 @@ function render() {
         <ul class="hp-cards">${cardHtml(deck[10], 0, ' hp-big')}</ul>
         <p class="hp-name">${deck[10].name}</p>
       </div>`;
-    action = `<button class="hp-primary" data-action="again">Play again</button>${shareHtml(deck[10])}`;
+    action = `<button class="hp-primary" data-action="again">Play again</button>${shareHtml(deck[10])}
+      <a class="hp-coffee" href="https://buymeacoffee.com/dascondor" target="_blank" rel="noopener">☕ Buy me a coffee</a>`;
   } else {
     if (phase === 'remember') {
       title = 'Think of a card';

@@ -132,6 +132,7 @@ function shareLinks(text: string, url: string): [string, string][] {
               <button class="hp-copy" type="button" (click)="copyLink()">{{ copyLabel() }}</button>
             </div>
           </details>
+          <a class="hp-coffee" href="https://buymeacoffee.com/dascondor" target="_blank" rel="noopener">☕ Buy me a coffee</a>
         }
       </div>
       <p class="hp-made">Built with Angular</p>
