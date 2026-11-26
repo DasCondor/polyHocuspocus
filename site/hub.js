@@ -107,7 +107,7 @@
       observer.observe(body);
       fit();
       // The game's height moves everything below it, so land a #run or #code link again.
-      if (!landed && /^#(how|run|code)$/.test(location.hash)) document.querySelector(location.hash).scrollIntoView();
+      if (!landed && /^#(how|run|code)$/.test(location.hash)) document.querySelector(location.hash).scrollIntoView({ behavior: 'instant' });
       landed = true;
     } catch {
       // Opened from a file:// URL, where the frame can't be measured; keep the default height.
