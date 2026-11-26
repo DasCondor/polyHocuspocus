@@ -1,0 +1,8 @@
+_site/
+.claude/
+csharp/bin/
+csharp/obj/
+__pycache__/
+hocuspocus
+hocuspocus.jar
+*.exe

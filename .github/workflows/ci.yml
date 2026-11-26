@@ -1,0 +1,106 @@
+name: Test and deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: ${{ matrix.lang }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { lang: Python, exe: python3 python/hocuspocus.py }
+          - { lang: JavaScript, exe: node javascript/hocuspocus.js }
+          - { lang: TypeScript, exe: node typescript/hocuspocus.ts }
+          - { lang: Go, exe: go run go/hocuspocus.go }
+          - { lang: Rust, build: rustc -O rust/hocuspocus.rs -o hocuspocus, exe: ./hocuspocus }
+          - { lang: C, build: cc -std=c99 -Wall -Wextra -Werror -O2 c/hocuspocus.c -o hocuspocus, exe: ./hocuspocus }
+          - { lang: C++, build: c++ -std=c++17 -Wall -Wextra -Werror -O2 cpp/hocuspocus.cpp -o hocuspocus, exe: ./hocuspocus }
+          - { lang: C#, build: dotnet build csharp -c Release -o out, exe: dotnet out/HocusPocus.dll }
+          - { lang: Java, exe: java java/HocusPocus.java }
+          - { lang: Kotlin, build: kotlinc kotlin/hocuspocus.kt -include-runtime -d hocuspocus.jar, exe: java -jar hocuspocus.jar }
+          - { lang: Ruby, exe: ruby ruby/hocuspocus.rb }
+          - { lang: Lua, exe: lua5.4 lua/hocuspocus.lua }
+          - { lang: Perl, exe: perl perl/hocuspocus.pl }
+          - { lang: Bash, exe: bash bash/hocuspocus.sh }
+          - { lang: PowerShell, exe: pwsh powershell/hocuspocus.ps1 }
+    steps:
+      - uses: actions/checkout@v7
+
+      - if: matrix.lang == 'JavaScript' || matrix.lang == 'TypeScript'
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - if: matrix.lang == 'Go'
+        uses: actions/setup-go@v7
+        with:
+          go-version: stable
+
+      - if: matrix.lang == 'Java' || matrix.lang == 'Kotlin'
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - if: matrix.lang == 'Kotlin'
+        name: Install Kotlin compiler
+        run: |
+          curl -sSLo kotlin.zip https://github.com/JetBrains/kotlin/releases/download/v2.4.21/kotlin-compiler-2.4.21.zip
+          unzip -q kotlin.zip -d "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/kotlinc/bin" >> "$GITHUB_PATH"
+
+      - if: matrix.lang == 'Lua'
+        run: sudo apt-get update -q && sudo apt-get install -yq lua5.4
+
+      - if: matrix.build
+        name: Build
+        run: ${{ matrix.build }}
+
+      - name: Self-test (1,000 simulated games)
+        run: ${{ matrix.exe }} --test
+
+      - name: Play one game from piped answers
+        run: |
+          out=$(printf '1\n2\n3\n' | ${{ matrix.exe }})
+          echo "$out" | tail -3
+          echo "$out" | grep -q "Hocus pocus... your card is the "
+
+  deploy:
+    needs: test
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build site
+        run: |
+          python3 tools/build_site.py
+          node --check _site/game.js
+          node --check _site/code.js
+
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v5

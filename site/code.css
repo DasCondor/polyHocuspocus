@@ -1,0 +1,262 @@
+/* The code viewer below the game. Builds on styles.css. */
+
+html {
+  scroll-behavior: smooth;
+}
+
+a.quiet {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.quiet.small {
+  padding: 6px 12px;
+  font-size: 11px;
+}
+
+.code-section {
+  margin: 70px auto 0;
+  padding-top: 50px;
+  border-top: 1px solid #ffffff10;
+  scroll-margin-top: 20px;
+}
+
+.code-intro {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.code-intro h2 {
+  font: 500 clamp(32px, 4vw, 48px)/1.1 'Cormorant Garamond', Georgia, serif;
+  margin: 12px 0;
+}
+
+.code-intro h2 em {
+  color: var(--gold);
+  font-weight: 400;
+}
+
+.subtitle code,
+.lang-note code {
+  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+  color: var(--gold);
+  font-size: 12px;
+}
+
+/* Language chips */
+
+.lang-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.lang-chip {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 11px 12px 10px;
+  text-align: left;
+  background: #ffffff05;
+  border: 1px solid #ffffff14;
+  border-radius: 8px;
+  color: #d9ddd2;
+  transition: border-color .2s, background .2s;
+}
+
+.lang-chip:hover {
+  border-color: #ffffff30;
+  background: #ffffff09;
+}
+
+.lang-chip.active {
+  border-color: var(--lang);
+  background: color-mix(in srgb, var(--lang) 10%, transparent);
+}
+
+.lang-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--lang);
+  flex: none;
+}
+
+.lang-lines {
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: .04em;
+}
+
+.lang-bar {
+  height: 2px;
+  background: #ffffff10;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.lang-bar span {
+  display: block;
+  height: 100%;
+  background: var(--lang);
+  opacity: .7;
+}
+
+/* Viewer */
+
+.viewer {
+  --lang: var(--gold);
+  border: 1px solid #ffffff16;
+  border-top: 2px solid var(--lang);
+  border-radius: 10px;
+  background: #08110f;
+  overflow: hidden;
+  box-shadow: 0 30px 60px #0006;
+}
+
+.viewer-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  background: #0e1b18;
+  border-bottom: 1px solid #ffffff0d;
+}
+
+.file-tabs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.file-tab {
+  border: 0;
+  background: transparent;
+  color: #8fa298;
+  padding: 6px 10px;
+  border-radius: 5px;
+  font: 12px ui-monospace, 'Cascadia Code', Consolas, monospace;
+}
+
+.file-tab:hover {
+  color: #e8e6cf;
+}
+
+.file-tab.active {
+  background: #ffffff0d;
+  color: #f4ecd6;
+}
+
+.viewer-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.run-line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #ffffff0d;
+  background: #0b1714;
+}
+
+.run-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .2em;
+  color: var(--lang);
+}
+
+.run-line code {
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  white-space: nowrap;
+  font: 12px ui-monospace, 'Cascadia Code', Consolas, monospace;
+  color: #e3d1a4;
+}
+
+.lang-note {
+  margin: 0;
+  padding: 9px 14px;
+  font-size: 12px;
+  color: #aab9b0;
+  border-bottom: 1px solid #ffffff0d;
+}
+
+pre.code {
+  margin: 0;
+  padding: 18px 20px 22px;
+  max-height: 640px;
+  overflow: auto;
+  font: 13px/1.6 ui-monospace, 'Cascadia Code', Consolas, monospace;
+  color: #d6dccf;
+  tab-size: 4;
+}
+
+/* Syntax colours, matched to the felt-and-gold table */
+
+.hljs-comment,
+.hljs-quote,
+.hljs-meta { color: #6d8378; font-style: italic; }
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-built_in.hljs-keyword { color: #e2b86b; }
+
+.hljs-string,
+.hljs-template-tag,
+.hljs-addition { color: #a9cf8f; }
+
+.hljs-number,
+.hljs-literal,
+.hljs-symbol { color: #e59a7b; }
+
+.hljs-title,
+.hljs-title.function_,
+.hljs-section { color: #8fc4e8; }
+
+.hljs-built_in,
+.hljs-type,
+.hljs-title.class_ { color: #c6a2e8; }
+
+.hljs-variable,
+.hljs-template-variable,
+.hljs-params,
+.hljs-attr,
+.hljs-attribute { color: #e8d5a8; }
+
+.hljs-subst { color: #d6dccf; }
+
+@media (max-width: 650px) {
+  .code-section {
+    margin-top: 40px;
+    padding-top: 36px;
+  }
+
+  .lang-grid {
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  }
+
+  pre.code {
+    font-size: 11.5px;
+    padding: 14px;
+  }
+
+  .run-line {
+    flex-wrap: wrap;
+  }
+}
