@@ -8,3 +8,12 @@ csharp/obj
 **/__pycache__
 hocuspocus
 hocuspocus.jar
+.github
+media
+*.md
+# Never send secrets or local settings to a build
+.env
+.env.*
+**/*.pem
+**/*.key
+.claude

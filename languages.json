@@ -9,7 +9,7 @@
   ],
   "run": "python python/hocuspocus.py",
   "group": "cli",
-  "docker": "docker run -it --rm ghcr.io/dascondor/polyhocuspocus:python",
+  "docker": "docker run -it --rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges ghcr.io/dascondor/polyhocuspocus:python",
   "dockerfile": "docker/python.Dockerfile"
  },
  {
@@ -22,7 +22,7 @@
   ],
   "run": "node javascript/hocuspocus.js",
   "group": "cli",
-  "docker": "docker run -it --rm ghcr.io/dascondor/polyhocuspocus:javascript",
+  "docker": "docker run -it --rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges ghcr.io/dascondor/polyhocuspocus:javascript",
   "dockerfile": "docker/javascript.Dockerfile"
  },
  {
@@ -36,7 +36,7 @@
   "run": "node typescript/hocuspocus.ts",
   "note": "Node.js 22.18 or later runs TypeScript directly.",
   "group": "cli",
-  "docker": "docker run -it --rm ghcr.io/dascondor/polyhocuspocus:typescript",
+  "docker": "docker run -it --rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges ghcr.io/dascondor/polyhocuspocus:typescript",
   "dockerfile": "docker/typescript.Dockerfile"
  },
  {
@@ -49,7 +49,7 @@
   ],
   "run": "go run go/hocuspocus.go",
   "group": "cli",
-  "docker": "docker run -it --rm ghcr.io/dascondor/polyhocuspocus:go",
+  "docker": "docker run -it --rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges ghcr.io/dascondor/polyhocuspocus:go",
   "dockerfile": "docker/go.Dockerfile"
  },
  {
@@ -63,7 +63,7 @@
   "run": "rustc -O rust/hocuspocus.rs -o hocuspocus && ./hocuspocus",
   "note": "No crates: a tiny xorshift generator stands in for rand.",
   "group": "cli",
-  "docker": "docker run -it --rm ghcr.io/dascondor/polyhocuspocus:rust",
+  "docker": "docker run -it --rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges ghcr.io/dascondor/polyhocuspocus:rust",
   "dockerfile": "docker/rust.Dockerfile"
  },
  {
@@ -76,7 +76,7 @@
   ],
   "run": "cc -O2 c/hocuspocus.c -o hocuspocus && ./hocuspocus",
   "group": "cli",
-  "docker": "docker run -it --rm ghcr.io/dascondor/polyhocuspocus:c",
+  "docker": "docker run -it --rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges ghcr.io/dascondor/polyhocuspocus:c",
   "dockerfile": "docker/c.Dockerfile"
  },
  {
@@ -89,7 +89,7 @@
   ],
   "run": "c++ -std=c++17 -O2 cpp/hocuspocus.cpp -o hocuspocus && ./hocuspocus",
   "group": "cli",
-  "docker": "docker run -it --rm ghcr.io/dascondor/polyhocuspocus:cpp",
+  "docker": "docker run -it --rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges ghcr.io/dascondor/polyhocuspocus:cpp",
   "dockerfile": "docker/cpp.Dockerfile"
  },
  {
@@ -103,7 +103,7 @@
   ],
   "run": "dotnet run --project csharp",
   "group": "cli",
-  "docker": "docker run -it --rm ghcr.io/dascondor/polyhocuspocus:csharp",
+  "docker": "docker run -it --rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges ghcr.io/dascondor/polyhocuspocus:csharp",
   "dockerfile": "docker/csharp.Dockerfile"
  },
  {
@@ -116,7 +116,7 @@
   ],
   "run": "java java/HocusPocus.java",
   "group": "cli",
-  "docker": "docker run -it --rm ghcr.io/dascondor/polyhocuspocus:java",
+  "docker": "docker run -it --rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges ghcr.io/dascondor/polyhocuspocus:java",
   "dockerfile": "docker/java.Dockerfile"
  },
  {
@@ -129,7 +129,7 @@
   ],
   "run": "kotlinc kotlin/hocuspocus.kt -include-runtime -d hocuspocus.jar && java -jar hocuspocus.jar",
   "group": "cli",
-  "docker": "docker run -it --rm ghcr.io/dascondor/polyhocuspocus:kotlin",
+  "docker": "docker run -it --rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges ghcr.io/dascondor/polyhocuspocus:kotlin",
   "dockerfile": "docker/kotlin.Dockerfile"
  },
  {
@@ -142,7 +142,7 @@
   ],
   "run": "ruby ruby/hocuspocus.rb",
   "group": "cli",
-  "docker": "docker run -it --rm ghcr.io/dascondor/polyhocuspocus:ruby",
+  "docker": "docker run -it --rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges ghcr.io/dascondor/polyhocuspocus:ruby",
   "dockerfile": "docker/ruby.Dockerfile"
  },
  {
@@ -156,7 +156,7 @@
   "run": "lua lua/hocuspocus.lua",
   "note": "Lua counts from 1, so the reveal is deck[11].",
   "group": "cli",
-  "docker": "docker run -it --rm ghcr.io/dascondor/polyhocuspocus:lua",
+  "docker": "docker run -it --rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges ghcr.io/dascondor/polyhocuspocus:lua",
   "dockerfile": "docker/lua.Dockerfile"
  },
  {
@@ -169,7 +169,7 @@
   ],
   "run": "perl perl/hocuspocus.pl",
   "group": "cli",
-  "docker": "docker run -it --rm ghcr.io/dascondor/polyhocuspocus:perl",
+  "docker": "docker run -it --rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges ghcr.io/dascondor/polyhocuspocus:perl",
   "dockerfile": "docker/perl.Dockerfile"
  },
  {
@@ -183,7 +183,7 @@
   "run": "bash bash/hocuspocus.sh",
   "note": "No nested arrays in Bash, so piles are read straight out of the deck.",
   "group": "cli",
-  "docker": "docker run -it --rm ghcr.io/dascondor/polyhocuspocus:bash",
+  "docker": "docker run -it --rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges ghcr.io/dascondor/polyhocuspocus:bash",
   "dockerfile": "docker/bash.Dockerfile"
  },
  {
@@ -196,7 +196,7 @@
   ],
   "run": "pwsh powershell/hocuspocus.ps1",
   "group": "cli",
-  "docker": "docker run -it --rm ghcr.io/dascondor/polyhocuspocus:powershell",
+  "docker": "docker run -it --rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges --tmpfs /tmp ghcr.io/dascondor/polyhocuspocus:powershell",
   "dockerfile": "docker/powershell.Dockerfile"
  },
  {
@@ -225,7 +225,7 @@
   ],
   "play": "web/vanilla/",
   "run": "Open web/vanilla/index.html in a browser",
-  "docker": "docker run --rm -p 8080:80 ghcr.io/dascondor/polyhocuspocus:site",
+  "docker": "docker run --rm --read-only --cap-drop ALL --security-opt no-new-privileges --tmpfs /tmp -p 127.0.0.1:8080:8080 ghcr.io/dascondor/polyhocuspocus:site",
   "note": "No framework and no build step. hocuspocus.css is the look every web version shares.",
   "dockerfile": "docker/site.Dockerfile"
  },
@@ -242,7 +242,7 @@
   ],
   "play": "web/angular/",
   "run": "cd web/angular && npm install && npm start",
-  "docker": "docker run --rm -p 8080:80 ghcr.io/dascondor/polyhocuspocus:site",
+  "docker": "docker run --rm --read-only --cap-drop ALL --security-opt no-new-privileges --tmpfs /tmp -p 127.0.0.1:8080:8080 ghcr.io/dascondor/polyhocuspocus:site",
   "note": "Angular with signals and the built-in @if / @for control flow.",
   "dockerfile": "docker/site.Dockerfile"
  },
@@ -259,7 +259,7 @@
   ],
   "play": "web/react/",
   "run": "cd web/react && npm install && npm run dev",
-  "docker": "docker run --rm -p 8080:80 ghcr.io/dascondor/polyhocuspocus:site",
+  "docker": "docker run --rm --read-only --cap-drop ALL --security-opt no-new-privileges --tmpfs /tmp -p 127.0.0.1:8080:8080 ghcr.io/dascondor/polyhocuspocus:site",
   "note": "A React function component with hooks, built with Vite.",
   "dockerfile": "docker/site.Dockerfile"
  },
@@ -276,7 +276,7 @@
   ],
   "play": "web/vue/",
   "run": "cd web/vue && npm install && npm run dev",
-  "docker": "docker run --rm -p 8080:80 ghcr.io/dascondor/polyhocuspocus:site",
+  "docker": "docker run --rm --read-only --cap-drop ALL --security-opt no-new-privileges --tmpfs /tmp -p 127.0.0.1:8080:8080 ghcr.io/dascondor/polyhocuspocus:site",
   "note": "A Vue single-file component using the Composition API, built with Vite.",
   "dockerfile": "docker/site.Dockerfile"
  },
@@ -294,7 +294,7 @@
    "preview": "previews/node.png"
   },
   "run": "node web/node/server.js",
-  "docker": "docker run --rm -p 3000:3000 ghcr.io/dascondor/polyhocuspocus:node-web",
+  "docker": "docker run --rm --read-only --cap-drop ALL --security-opt no-new-privileges -p 127.0.0.1:3000:3000 ghcr.io/dascondor/polyhocuspocus:node-web",
   "note": "Every page is built on the server and the game lives in the links, so the browser runs no JavaScript. No npm packages.",
   "dockerfile": "docker/node-web.Dockerfile"
  },
@@ -312,7 +312,7 @@
    "preview": "previews/python.png"
   },
   "run": "python web/python/server.py",
-  "docker": "docker run --rm -p 8000:8000 ghcr.io/dascondor/polyhocuspocus:python-web",
+  "docker": "docker run --rm --read-only --cap-drop ALL --security-opt no-new-privileges -p 127.0.0.1:8000:8000 ghcr.io/dascondor/polyhocuspocus:python-web",
   "note": "The same server-rendered game using only Python's standard library.",
   "dockerfile": "docker/python-web.Dockerfile"
  }

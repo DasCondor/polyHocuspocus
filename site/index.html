@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <!-- GitHub Pages cannot send headers, so the page carries its own security policy -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0f1a17">
   <meta name="description" content="The classic 21-card trick. Play it in six web versions, then read it in 15 coding languages.">
@@ -116,6 +119,11 @@
         <a href="https://docs.docker.com/get-started/get-docker/" target="_blank" rel="noopener">Docker</a>.
         Nothing else to install.
       </p>
+      <p class="lead">
+        The commands lock each container down: it runs as a non-root user, can't change its own files,
+        has no Linux capabilities, and the terminal versions get no network. The web pages are only
+        visible on your own computer.
+      </p>
 
       <div class="run-grid">
         <article class="run-card">
@@ -135,11 +143,11 @@
         <article class="run-card">
           <h3>The whole website</h3>
           <p>All six web versions and the code viewer, on your computer.</p>
-          <div class="cmd"><code id="cmd-site">docker run --rm -p 8080:80 ghcr.io/dascondor/polyhocuspocus:site</code><button class="ghost" data-copy="cmd-site">Copy</button></div>
+          <div class="cmd"><code id="cmd-site">docker run --rm --read-only --cap-drop ALL --security-opt no-new-privileges --tmpfs /tmp -p 127.0.0.1:8080:8080 ghcr.io/dascondor/polyhocuspocus:site</code><button class="ghost" data-copy="cmd-site">Copy</button></div>
           <p class="hint">Then open <a href="http://localhost:8080" target="_blank" rel="noopener">localhost:8080</a>.</p>
           <h3 class="sub">The two server versions</h3>
-          <div class="cmd"><code id="cmd-node">docker run --rm -p 3000:3000 ghcr.io/dascondor/polyhocuspocus:node-web</code><button class="ghost" data-copy="cmd-node">Copy</button></div>
-          <div class="cmd"><code id="cmd-python">docker run --rm -p 8000:8000 ghcr.io/dascondor/polyhocuspocus:python-web</code><button class="ghost" data-copy="cmd-python">Copy</button></div>
+          <div class="cmd"><code id="cmd-node">docker run --rm --read-only --cap-drop ALL --security-opt no-new-privileges -p 127.0.0.1:3000:3000 ghcr.io/dascondor/polyhocuspocus:node-web</code><button class="ghost" data-copy="cmd-node">Copy</button></div>
+          <div class="cmd"><code id="cmd-python">docker run --rm --read-only --cap-drop ALL --security-opt no-new-privileges -p 127.0.0.1:8000:8000 ghcr.io/dascondor/polyhocuspocus:python-web</code><button class="ghost" data-copy="cmd-python">Copy</button></div>
           <p class="hint">Node.js on <a href="http://localhost:3000" target="_blank" rel="noopener">localhost:3000</a>, Python on <a href="http://localhost:8000" target="_blank" rel="noopener">localhost:8000</a>.</p>
         </article>
 
@@ -157,6 +165,7 @@
         <a href="https://github.com/DasCondor/polyHocuspocus/pkgs/container/polyhocuspocus" target="_blank" rel="noopener">All Docker images ↗</a>
         <a href="https://github.com/DasCondor/polyHocuspocus/blob/main/compose.yaml" target="_blank" rel="noopener">compose.yaml ↗</a>
         <a href="https://github.com/DasCondor/polyHocuspocus/tree/main/docker" target="_blank" rel="noopener">Every Dockerfile ↗</a>
+        <a href="https://github.com/DasCondor/polyHocuspocus#-security" target="_blank" rel="noopener">How they're locked down ↗</a>
         <a href="https://github.com/DasCondor/polyHocuspocus#readme" target="_blank" rel="noopener">Run without Docker ↗</a>
       </p>
     </section>
@@ -214,8 +223,8 @@
     </span>
   </footer>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/powershell.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/powershell.min.js" integrity="sha512-jWH48mwjihORkGHkvD8l0E/MtDgvY0C69eaYitXkI28ZneLUso2I3PgrN8lNnF3esiwHIFy0QODZy7ypmo9Flg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="hub.js"></script>
 </body>
 </html>

@@ -77,7 +77,7 @@
       panel.hidden = false;
       el('server-title').textContent = `${lang.name} version`;
       el('server-note').textContent = lang.note || '';
-      el('server-docker').textContent = lang.docker;
+      showCommand(el('server-docker'), lang.docker);
       el('server-dockerfile').href = REPO + lang.dockerfile;
       el('server-run').textContent = lang.run;
       el('server-url').textContent = `http://localhost:${lang.server.port}`;
@@ -148,7 +148,7 @@
     el('viewer').style.setProperty('--lang', lang.color);
     el('run-cmd').textContent = lang.run;
     el('docker-line').hidden = !lang.docker;
-    el('docker-cmd').textContent = lang.docker || '';
+    showCommand(el('docker-cmd'), lang.docker || '');
     if (lang.dockerfile) el('dockerfile-link').href = REPO + lang.dockerfile;
     el('lang-note').hidden = !lang.note;
     el('lang-note').textContent = lang.note || '';
@@ -204,7 +204,7 @@
     select.innerHTML = cli.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
     const show = () => {
       const lang = cli.find(l => l.id === select.value);
-      el('run-lang-cmd').textContent = lang.docker;
+      showCommand(el('run-lang-cmd'), lang.docker);
       el('run-lang-dockerfile').href = REPO + lang.dockerfile;
       el('run-lang-dockerfile').textContent = `${lang.name} Dockerfile ↗`;
     };
@@ -253,6 +253,21 @@
       if (!share.contains(e.target)) share.open = false;
     });
   });
+
+  /* ---------- Commands ---------- */
+
+  // Wrap each word so a long command breaks between flags; copying still gets the plain text.
+  function showCommand(code, text) {
+    code.textContent = '';
+    text.split(' ').forEach((word, i) => {
+      if (i) code.append(' ');
+      const tok = document.createElement('span');
+      tok.className = 'tok';
+      tok.textContent = word;
+      code.append(tok);
+    });
+  }
+  document.querySelectorAll('.cmd code').forEach(code => showCommand(code, code.textContent));
 
   /* ---------- Copy buttons ---------- */
 

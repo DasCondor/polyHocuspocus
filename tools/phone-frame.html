@@ -1,9 +1,0 @@
-<!doctype html>
-<!-- Shows ?src= in a 390x844 phone-sized frame, for the README screenshots.
-     Headless Edge won't size its own window that narrow; see tools/screenshots.ps1. -->
-<html>
-<body style="margin:0;background:#0f1a17">
-  <iframe id="f" width="390" height="844" style="border:0;display:block"></iframe>
-  <script>document.getElementById('f').src = new URLSearchParams(location.search).get('src');</script>
-</body>
-</html>

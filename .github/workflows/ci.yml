@@ -6,13 +6,25 @@ on:
   pull_request:
   workflow_dispatch:
 
+# Every job starts with read-only access; the jobs that publish ask for more.
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  # Trivy, the image scanner, pinned by digest.
+  TRIVY: aquasec/trivy:0.76.2@sha256:8f6bb947dbc528902e11f2f5be52f7b519f6a39d5d148f41166f2040499768fb
+
+# Third-party actions are pinned to full commit SHAs (the tag is in the comment);
+# Dependabot keeps them up to date.
 jobs:
   test:
     name: ${{ matrix.lang }}
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -33,28 +45,31 @@ jobs:
           - { lang: Bash, exe: bash bash/hocuspocus.sh }
           - { lang: PowerShell, exe: pwsh powershell/hocuspocus.ps1 }
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - if: matrix.lang == 'JavaScript' || matrix.lang == 'TypeScript'
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
 
       - if: matrix.lang == 'Go'
-        uses: actions/setup-go@v7
+        uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
         with:
           go-version: stable
 
       - if: matrix.lang == 'Java' || matrix.lang == 'Kotlin'
-        uses: actions/setup-java@v6
+        uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
         with:
           distribution: temurin
           java-version: 21
 
       - if: matrix.lang == 'Kotlin'
-        name: Install Kotlin compiler
+        name: Install Kotlin compiler (checksum verified)
         run: |
           curl -sSLo kotlin.zip https://github.com/JetBrains/kotlin/releases/download/v2.4.21/kotlin-compiler-2.4.21.zip
+          echo "7cc140e76daf416a0424a5557f99afd7ca89ebd463ea1101261e3e01c33e75cd  kotlin.zip" | sha256sum -c -
           unzip -q kotlin.zip -d "$RUNNER_TEMP"
           echo "$RUNNER_TEMP/kotlinc/bin" >> "$GITHUB_PATH"
 
@@ -77,14 +92,38 @@ jobs:
   docker:
     name: Docker images
     runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-      packages: write # publish to ghcr.io/dascondor/polyhocuspocus
+    timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Scan the Dockerfiles for misconfigurations
+        run: docker run --rm -v "$PWD:/src:ro" "$TRIVY" config --quiet --exit-code 1 --severity MEDIUM,HIGH,CRITICAL /src
 
       - name: Build every image
         run: docker compose --profile cli build
+
+      - name: Check no image runs as root
+        run: |
+          for image in $(docker compose --profile cli config --images); do
+            user=$(docker image inspect -f '{{.Config.User}}' "$image")
+            case "${user%%:*}" in
+              ""|0|root) echo "::error::$image runs as root"; exit 1 ;;
+            esac
+            echo "$image runs as $user"
+          done
+
+      - name: Check the container lock-down
+        run: |
+          docker compose run --rm -T --entrypoint bash bash -c '
+            fail() { echo "::error::$1"; exit 1; }
+            [ "$(id -u)" != 0 ] || fail "running as root"
+            grep -Eq "^CapEff:\s+0+$" /proc/self/status || fail "has Linux capabilities"
+            grep -Eq "^NoNewPrivs:\s+1$" /proc/self/status || fail "can gain privileges"
+            if touch /app/probe 2>/dev/null; then fail "filesystem is writable"; fi
+            if (exec 3<>/dev/tcp/1.1.1.1/443) 2>/dev/null; then fail "has network access"; fi
+            echo "non-root, no capabilities, no new privileges, read-only, no network"'
 
       - name: Self-test each language inside its image
         run: |
@@ -103,28 +142,38 @@ jobs:
           python3 tools/test_web_server.py http://127.0.0.1:3000 50
           python3 tools/test_web_server.py http://127.0.0.1:8000 50
           curl -fsS http://127.0.0.1:8080/web/angular/ | grep -q app-root
+          for port in 3000 8000 8080; do
+            curl -fsSI "http://127.0.0.1:$port/" | grep -qi '^content-security-policy:'
+          done
           docker compose down
 
-      - name: Publish the images
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+      - name: Scan the images for known vulnerabilities
         run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
-          docker compose --profile cli push
+          for image in $(docker compose --profile cli config --images); do
+            echo "::group::$image"
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v trivy-cache:/root/.cache "$TRIVY" \
+              image --quiet --scanners vuln --ignore-unfixed --severity HIGH,CRITICAL --exit-code 1 "$image"
+            echo "::endgroup::"
+          done
 
   web:
     name: Web versions
     runs-on: ubuntu-24.04
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
 
       - name: Build Angular, React and Vue
         run: |
           for app in angular react vue; do
-            npm ci --prefix web/$app --no-audit --no-fund
+            npm ci --prefix web/$app --ignore-scripts --no-audit --no-fund
+            npm audit --prefix web/$app --omit=dev --audit-level=high
             npm run build --prefix web/$app
           done
 
@@ -133,6 +182,7 @@ jobs:
           python3 tools/build_site.py --strict
           node --check _site/hub.js
           node --check _site/web/vanilla/app.js
+          ! grep -l '<script>' _site/index.html _site/web/*/index.html
 
       - name: Play the Node.js and Python servers
         run: |
@@ -143,14 +193,56 @@ jobs:
           python3 tools/test_web_server.py http://127.0.0.1:8000 50
 
       - if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4.0.0
         with:
           path: _site
+
+  publish:
+    name: Publish signed images
+    needs: [test, docker, web]
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      packages: write # push to ghcr.io/dascondor/polyhocuspocus
+      id-token: write # keyless signing with Sigstore
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      - uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push, with an SBOM and build provenance
+        run: |
+          docker buildx bake -f compose.yaml --push \
+            --set '*.attest=type=sbom' \
+            --set '*.attest=type=provenance,mode=max' \
+            --metadata-file bake.json
+
+      - uses: sigstore/cosign-installer@881c63bd87e38389154debd8331404ce7ca8a3ab # v4.1.4
+
+      - name: Sign every image
+        run: |
+          jq -r '.[] | objects | select(.["containerimage.digest"])
+                 | (.["image.name"] | split(",")[0] | split(":")[0]) + "@" + .["containerimage.digest"]' bake.json \
+            | sort -u | while read -r ref; do
+              echo "Signing $ref"
+              cosign sign --yes "$ref"
+            done
 
   deploy:
     needs: [test, docker, web]
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     permissions:
       pages: write
       id-token: write
@@ -161,7 +253,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5.0.0
 
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5

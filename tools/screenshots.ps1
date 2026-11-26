@@ -1,5 +1,5 @@
 # Renders the link preview image, the home-screen icon and the README screenshots
-# with headless Microsoft Edge (Windows).
+# with headless Microsoft Edge (Windows). Phone-sized shots use Playwright in Docker.
 #
 # Start the site and both servers first, for example:
 #   docker compose up --build
@@ -33,9 +33,16 @@ function Get-RoundOne([string] $Base) {
 
 $file = { param($rel) ([uri] (Join-Path $root $rel)).AbsoluteUri }
 
-# A phone-sized (390x844) view of a page, at twice the pixel density.
+# A phone-sized (390x844) view of a page, at twice the pixel density. Headless Edge
+# won't size its window that narrow, and the pages refuse to be framed, so this
+# uses Playwright's iPhone emulation in Docker.
+$playwright = 'mcr.microsoft.com/playwright:v1.65.1-noble'
 function Save-Phone([string] $Url, [string] $Out) {
-    Save-Shot ((& $file 'tools/phone-frame.html') + '?src=' + [uri]::EscapeDataString($Url)) $Out 390 844 2
+    $inner = $Url -replace '//(127\.0\.0\.1|localhost)', '//host.docker.internal'
+    docker run --rm -v "${root}:/repo" -w /tmp $playwright sh -c (
+        'npm i -s --no-audit --no-fund playwright@1.65.1 >/dev/null 2>&1 && ' +
+        "cp /repo/tools/phone-shot.mjs . && node phone-shot.mjs '$inner' '/repo/$Out'")
+    Write-Host "$Out  ($((Get-Item (Join-Path $root $Out)).Length / 1KB -as [int]) KB)"
 }
 
 Save-Shot (& $file 'tools/social-card.html') 'site/social.png' 1200 630

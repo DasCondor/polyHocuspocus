@@ -35,6 +35,7 @@ Think of a card. Point to its pile three times. Watch it appear.
 - [💻 Coding languages](#-coding-languages)
 - [🌐 Web versions](#-web-versions)
 - [📱 Share it](#-share-it)
+- [🔒 Security](#-security)
 - [🧪 Testing](#-testing)
 - [🛠️ Working on the project](#️-working-on-the-project)
 - [☕ Support development](#-support-development)
@@ -45,6 +46,7 @@ Think of a card. Point to its pile three times. Watch it appear.
 - **Six web versions:** plain JavaScript, Angular, React, Vue, and server-rendered Node.js and Python. Switch between them on the page.
 - **15 coding languages:** the same trick as a terminal program in each, from Python and Go to Bash and PowerShell.
 - **Docker images for everything:** run any version with one `docker run` command, or build them all with `docker compose up`.
+- **Locked-down containers:** every image runs as a non-root user on a read-only filesystem with no Linux capabilities, and the terminal versions get no network at all. Images are scanned, signed and shipped with an SBOM.
 - **Easy to share:** a Share button on the page and on every "Your card is…" screen. Phones open the native share sheet; computers get WhatsApp, X, Facebook, Reddit, email and Copy link. Shared links show a preview card.
 - **Buy me a coffee:** a ☕ button beside **Play again** after every trick, and at the bottom of the website.
 - **Phone friendly:** large text, big tap targets, and layouts tested at phone size.
@@ -85,26 +87,28 @@ Every version is published as a ready-made image at **[ghcr.io/dascondor/polyhoc
 **The whole website** (all six web versions and the code viewer), then open <http://localhost:8080>:
 
 ```powershell
-docker run --rm -p 8080:80 ghcr.io/dascondor/polyhocuspocus:site
+docker run --rm --read-only --cap-drop ALL --security-opt no-new-privileges --tmpfs /tmp -p 127.0.0.1:8080:8080 ghcr.io/dascondor/polyhocuspocus:site
 ```
 
 **A coding language in your terminal.** Swap `go` for any tag in the [table below](#-coding-languages):
 
 ```powershell
-docker run -it --rm ghcr.io/dascondor/polyhocuspocus:go
+docker run -it --rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges ghcr.io/dascondor/polyhocuspocus:go
 ```
 
-Add `--test` to the end to watch it play 1,000 games against itself.
+Add `--test` to the end to watch it play 1,000 games against itself. For `powershell`, also add `--tmpfs /tmp` before the image name.
 
 **The server versions:** Node.js on <http://localhost:3000>, Python on <http://localhost:8000>:
 
 ```powershell
-docker run --rm -p 3000:3000 ghcr.io/dascondor/polyhocuspocus:node-web
+docker run --rm --read-only --cap-drop ALL --security-opt no-new-privileges -p 127.0.0.1:3000:3000 ghcr.io/dascondor/polyhocuspocus:node-web
 ```
 
 ```powershell
-docker run --rm -p 8000:8000 ghcr.io/dascondor/polyhocuspocus:python-web
+docker run --rm --read-only --cap-drop ALL --security-opt no-new-privileges -p 127.0.0.1:8000:8000 ghcr.io/dascondor/polyhocuspocus:python-web
 ```
+
+The extra flags lock each container down: no writing to its files, no Linux capabilities, no way to gain privileges, and no network for the terminal versions. `127.0.0.1:` keeps the web pages visible only on your own computer, not on your network. See [🔒 Security](#-security).
 
 <details>
 <summary><b>Build the images yourself with Docker Compose</b></summary>
@@ -122,7 +126,7 @@ docker compose run --rm go --test   # its 1,000-game self-test
 docker compose pull                 # download the published images instead of building
 ```
 
-The terminal versions are in the `cli` profile, so `docker compose up` leaves them out.
+The terminal versions are in the `cli` profile, so `docker compose up` leaves them out. Every service already has the lock-down settings, plus memory, CPU and process limits.
 
 </details>
 
@@ -191,6 +195,33 @@ The Node.js and Python versions build every page on the server and keep the game
 
 Or just send the link: **<https://dascondor.github.io/polyHocuspocus/>**. It shows a preview card in chat apps and on social media.
 
+## 🔒 Security
+
+The containers are locked down so that a program inside one can reach as little of your computer as possible.
+
+| Protection | What it means |
+| --- | --- |
+| **Non-root user** | Every image runs as an unprivileged user (UID 65532, 65534, 1654 or 100), never root. CI fails if one doesn't. |
+| **Minimal images** | Go, Rust, C and C++ are a single static binary on an empty `scratch` image. Python, Node.js, Java and C# use [distroless](https://github.com/GoogleContainerTools/distroless) or chiseled images with no shell and no package manager. The rest are Alpine with the package manager removed. |
+| **Read-only filesystem** | Containers can't change their own files. Only `site` and `powershell` get a small `/tmp` in memory, mounted `noexec`. |
+| **No capabilities, no escalation** | `--cap-drop ALL` removes every Linux capability, and `no-new-privileges` stops setuid programs from gaining any. Docker's default seccomp profile stays on. |
+| **No network** | Terminal versions run with `--network none`. The web servers publish their port on `127.0.0.1` only, so other devices on your network can't reach them. |
+| **Resource limits** | In Compose, each container gets a memory cap, one CPU, and a process limit. |
+| **Safe web pages** | Every web version sends a strict Content-Security-Policy, `nosniff`, a Referrer-Policy, a Permissions-Policy and anti-framing headers. The two servers accept only `GET`/`HEAD`, check every value in the link, bind to `127.0.0.1` by default, and drop slow connections. highlight.js loads with Subresource Integrity. |
+
+**Supply chain**
+
+- Every base image is pinned by its `sha256` digest, and every GitHub Action by its full commit SHA. [Dependabot](.github/dependabot.yml) proposes updates weekly.
+- Downloads in the builds (the Kotlin compiler and PowerShell) are checked against their published SHA-256. `npm ci --ignore-scripts` stops packages from running install scripts.
+- CI scans the Dockerfiles and every image with [Trivy](https://trivy.dev) and fails on any fixable HIGH or CRITICAL vulnerability. `npm audit` checks the web apps, and [CodeQL](.github/workflows/codeql.yml) checks the code.
+- Published images carry an SBOM and build provenance, and are signed with [Sigstore](https://www.sigstore.dev/) by the CI workflow. To verify an image:
+
+```powershell
+cosign verify ghcr.io/dascondor/polyhocuspocus:go --certificate-oidc-issuer https://token.actions.githubusercontent.com --certificate-identity https://github.com/DasCondor/polyHocuspocus/.github/workflows/ci.yml@refs/heads/main
+```
+
+Found a security problem? See [SECURITY.md](SECURITY.md).
+
 ## 🧪 Testing
 
 [`ci.yml`](.github/workflows/ci.yml) runs on every push:
@@ -198,8 +229,9 @@ Or just send the link: **<https://dascondor.github.io/polyHocuspocus/>**. It sho
 | Job | What it checks |
 | --- | --- |
 | **Languages** | Builds each terminal version with its own toolchain, runs the 1,000-game self-test, and plays a game from piped answers. |
-| **Docker images** | Builds every image, repeats the self-test inside each one, plays 50 games against both server images, then publishes the images to `ghcr.io`. |
-| **Web versions** | Builds Angular, React and Vue, assembles the site, and plays 50 games against the Node.js and Python servers with [`tools/test_web_server.py`](tools/test_web_server.py). |
+| **Docker images** | Scans the Dockerfiles, builds every image, checks none runs as root, checks the lock-down from inside a container, repeats the self-test inside each image, plays 50 games against both server images, and scans every image for vulnerabilities. |
+| **Web versions** | Builds Angular, React and Vue, audits their packages, assembles the site, and plays 50 games against the Node.js and Python servers with [`tools/test_web_server.py`](tools/test_web_server.py). |
+| **Publish** | After everything passes on `main`: pushes the images to `ghcr.io` with an SBOM and provenance, then signs them. It is the only job that can write packages. |
 
 The website is redeployed only when all of these pass.
 
@@ -236,7 +268,7 @@ py -m http.server 8000 --directory _site
 
 <br>
 
-Start the site and servers with `docker compose up --build`, then run [`tools/screenshots.ps1`](tools/screenshots.ps1) on Windows. It renders the link preview from [`tools/social-card.html`](tools/social-card.html), the home-screen icon, the server previews and the README images with headless Microsoft Edge.
+Start the site and servers with `docker compose up --build`, then run [`tools/screenshots.ps1`](tools/screenshots.ps1) on Windows. It renders the link preview from [`tools/social-card.html`](tools/social-card.html), the home-screen icon, the server previews and the README images with headless Microsoft Edge. The phone-sized shots use Playwright in Docker ([`tools/phone-shot.mjs`](tools/phone-shot.mjs)), because the pages refuse to be shown inside a frame.
 
 </details>
 
@@ -254,11 +286,12 @@ polyHocuspocus/
 │   ├── shared/         # hocuspocus.css, used by every web version
 │   ├── vanilla/ angular/ react/ vue/
 │   └── node/ python/   # Server-rendered versions
-├── docker/             # One Dockerfile per version
+├── docker/             # One hardened Dockerfile per version, plus nginx.conf
 ├── compose.yaml
 ├── site/               # The main page: version switcher, Docker how-to, code viewer
 ├── media/              # README screenshots
 ├── languages.json      # Every version the website lists
+├── SECURITY.md         # How to report a vulnerability
 └── tools/              # Site builder, server test, screenshots
 ```
 

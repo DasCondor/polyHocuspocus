@@ -7,127 +7,127 @@
 #   docker compose pull                  download the published images instead of building them
 #
 # Terminal versions sit in the "cli" profile so `docker compose up` skips them.
+#
+# Locked down: every container runs as a non-root user (set in its image) on a
+# read-only filesystem, with every Linux capability dropped, privilege
+# escalation blocked, and limits on memory, CPU and processes. Terminal versions
+# get no network at all; the web servers only listen on this computer (127.0.0.1).
 
 x-build: &labels
   org.opencontainers.image.source: https://github.com/DasCondor/polyHocuspocus
 
+x-hardened: &hardened
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  mem_limit: 256m
+  cpus: 1
+  pids_limit: 64
+  restart: "no"
+
+x-cli: &cli
+  <<: *hardened
+  profiles: [cli]
+  network_mode: none
+  stdin_open: true
+  tty: true
+
 services:
   python:
+    <<: *cli
     image: ghcr.io/dascondor/polyhocuspocus:python
     build: { context: ., dockerfile: docker/python.Dockerfile, labels: *labels }
-    profiles: [cli]
-    stdin_open: true
-    tty: true
 
   javascript:
+    <<: *cli
     image: ghcr.io/dascondor/polyhocuspocus:javascript
     build: { context: ., dockerfile: docker/javascript.Dockerfile, labels: *labels }
-    profiles: [cli]
-    stdin_open: true
-    tty: true
 
   typescript:
+    <<: *cli
     image: ghcr.io/dascondor/polyhocuspocus:typescript
     build: { context: ., dockerfile: docker/typescript.Dockerfile, labels: *labels }
-    profiles: [cli]
-    stdin_open: true
-    tty: true
 
   go:
+    <<: *cli
     image: ghcr.io/dascondor/polyhocuspocus:go
     build: { context: ., dockerfile: docker/go.Dockerfile, labels: *labels }
-    profiles: [cli]
-    stdin_open: true
-    tty: true
 
   rust:
+    <<: *cli
     image: ghcr.io/dascondor/polyhocuspocus:rust
     build: { context: ., dockerfile: docker/rust.Dockerfile, labels: *labels }
-    profiles: [cli]
-    stdin_open: true
-    tty: true
 
   c:
+    <<: *cli
     image: ghcr.io/dascondor/polyhocuspocus:c
     build: { context: ., dockerfile: docker/c.Dockerfile, labels: *labels }
-    profiles: [cli]
-    stdin_open: true
-    tty: true
 
   cpp:
+    <<: *cli
     image: ghcr.io/dascondor/polyhocuspocus:cpp
     build: { context: ., dockerfile: docker/cpp.Dockerfile, labels: *labels }
-    profiles: [cli]
-    stdin_open: true
-    tty: true
 
   csharp:
+    <<: *cli
     image: ghcr.io/dascondor/polyhocuspocus:csharp
     build: { context: ., dockerfile: docker/csharp.Dockerfile, labels: *labels }
-    profiles: [cli]
-    stdin_open: true
-    tty: true
+    mem_limit: 512m
 
   java:
+    <<: *cli
     image: ghcr.io/dascondor/polyhocuspocus:java
     build: { context: ., dockerfile: docker/java.Dockerfile, labels: *labels }
-    profiles: [cli]
-    stdin_open: true
-    tty: true
+    mem_limit: 512m
 
   kotlin:
+    <<: *cli
     image: ghcr.io/dascondor/polyhocuspocus:kotlin
     build: { context: ., dockerfile: docker/kotlin.Dockerfile, labels: *labels }
-    profiles: [cli]
-    stdin_open: true
-    tty: true
+    mem_limit: 512m
 
   ruby:
+    <<: *cli
     image: ghcr.io/dascondor/polyhocuspocus:ruby
     build: { context: ., dockerfile: docker/ruby.Dockerfile, labels: *labels }
-    profiles: [cli]
-    stdin_open: true
-    tty: true
 
   lua:
+    <<: *cli
     image: ghcr.io/dascondor/polyhocuspocus:lua
     build: { context: ., dockerfile: docker/lua.Dockerfile, labels: *labels }
-    profiles: [cli]
-    stdin_open: true
-    tty: true
 
   perl:
+    <<: *cli
     image: ghcr.io/dascondor/polyhocuspocus:perl
     build: { context: ., dockerfile: docker/perl.Dockerfile, labels: *labels }
-    profiles: [cli]
-    stdin_open: true
-    tty: true
 
   bash:
+    <<: *cli
     image: ghcr.io/dascondor/polyhocuspocus:bash
     build: { context: ., dockerfile: docker/bash.Dockerfile, labels: *labels }
-    profiles: [cli]
-    stdin_open: true
-    tty: true
 
   powershell:
+    <<: *cli
     image: ghcr.io/dascondor/polyhocuspocus:powershell
     build: { context: ., dockerfile: docker/powershell.Dockerfile, labels: *labels }
-    profiles: [cli]
-    stdin_open: true
-    tty: true
+    mem_limit: 512m
+    tmpfs: ["/tmp:size=32m,mode=1777,noexec,nosuid,nodev"]
 
   site:  # website with every web version and the code viewer: http://localhost:8080
+    <<: *hardened
     image: ghcr.io/dascondor/polyhocuspocus:site
     build: { context: ., dockerfile: docker/site.Dockerfile, labels: *labels }
-    ports: ["8080:80"]
+    ports: ["127.0.0.1:8080:8080"]
+    tmpfs: ["/tmp:size=16m,mode=1777,noexec,nosuid,nodev"]
 
   node-web:  # Node.js server version: http://localhost:3000
+    <<: *hardened
     image: ghcr.io/dascondor/polyhocuspocus:node-web
     build: { context: ., dockerfile: docker/node-web.Dockerfile, labels: *labels }
-    ports: ["3000:3000"]
+    ports: ["127.0.0.1:3000:3000"]
 
   python-web:  # Python server version: http://localhost:8000
+    <<: *hardened
     image: ghcr.io/dascondor/polyhocuspocus:python-web
     build: { context: ., dockerfile: docker/python-web.Dockerfile, labels: *labels }
-    ports: ["8000:8000"]
+    ports: ["127.0.0.1:8000:8000"]

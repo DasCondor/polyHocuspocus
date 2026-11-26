@@ -1,0 +1,28 @@
+# Weekly update proposals for everything this repository pins:
+# GitHub Actions (by commit SHA), Docker base images (by digest) and npm packages.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: docker
+    directory: /docker
+    schedule:
+      interval: weekly
+    groups:
+      base-images:
+        patterns: ["*"]
+
+  - package-ecosystem: npm
+    directories: [/web/angular, /web/react, /web/vue]
+    schedule:
+      interval: weekly
+    groups:
+      npm:
+        patterns: ["*"]
+        update-types: [minor, patch]

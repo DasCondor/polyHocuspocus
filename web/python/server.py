@@ -7,11 +7,14 @@ The game state lives in the link: /?deck=4.17.33...&round=2
 """
 import os
 import random
+import re
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, quote, urlsplit
 
 PORT = int(os.environ.get("PORT", 8000))
+# Only this computer can connect unless HOST says otherwise (the Docker image sets 0.0.0.0).
+HOST = os.environ.get("HOST", "127.0.0.1")
 CSS = (Path(__file__).resolve().parent.parent / "shared" / "hocuspocus.css").read_bytes()
 
 SUITS = [("♠", "Spades"), ("♥", "Hearts"), ("♣", "Clubs"), ("♦", "Diamonds")]
@@ -50,14 +53,15 @@ def collect(piles, chosen):
     return piles[others[0]] + piles[chosen] + piles[others[1]]
 
 
+DECK_PATTERN = re.compile(r"[0-9]{1,2}(?:\.[0-9]{1,2}){20}")
+
+
 def parse_deck(text):
-    """A deck from the link must be 21 different cards."""
-    try:
-        ids = [int(n) for n in text.split(".")]
-    except ValueError:
+    """A deck from the link must be 21 different cards, written as plain numbers."""
+    if not DECK_PATTERN.fullmatch(text):
         return None
-    ok = len(ids) == 21 and len(set(ids)) == 21 and all(0 <= n < 52 for n in ids)
-    return ids if ok else None
+    ids = [int(n) for n in text.split(".")]
+    return ids if len(set(ids)) == 21 and all(n < 52 for n in ids) else None
 
 
 def game_link(deck, round_no):
@@ -176,7 +180,29 @@ def reveal_page(card_id):
 
 # ---------- Routes ----------
 
+# Sent with every response. The pages use no scripts, frames or forms, so the policy allows none.
+SECURITY_HEADERS = {
+    "Content-Security-Policy": "default-src 'none'; style-src 'self'; style-src-attr 'unsafe-inline'; "
+                               "img-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Referrer-Policy": "no-referrer",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()",
+    "Cross-Origin-Opener-Policy": "same-origin",
+    "Cross-Origin-Resource-Policy": "same-origin",
+}
+
+
 class Handler(BaseHTTPRequestHandler):
+    server_version = "HocusPocus"  # no Python version in the Server header
+    sys_version = ""
+    timeout = 10  # drop slow or idle connections
+
+    def end_headers(self):
+        for name, value in SECURITY_HEADERS.items():
+            self.send_header(name, value)
+        super().end_headers()
+
     def send(self, status, content_type, body):
         data = body.encode() if isinstance(body, str) else body
         self.send_response(status)
@@ -184,13 +210,17 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Cache-Control", "no-store")
         self.send_header("Content-Length", str(len(data)))
         self.end_headers()
-        self.wfile.write(data)
+        if self.command != "HEAD":
+            self.wfile.write(data)
 
     def redirect(self, to):
         self.send_response(303)
         self.send_header("Location", to)
         self.send_header("Content-Length", "0")
         self.end_headers()
+
+    def do_HEAD(self):
+        self.do_GET()
 
     def do_GET(self):
         url = urlsplit(self.path)
@@ -202,7 +232,7 @@ class Handler(BaseHTTPRequestHandler):
         q = {k: v[0] for k, v in parse_qs(url.query).items()}
         html = "text/html; charset=utf-8"
         if "reveal" in q:
-            ok = q["reveal"].isdigit() and int(q["reveal"]) < 52
+            ok = re.fullmatch(r"[0-9]{1,2}", q["reveal"]) and int(q["reveal"]) < 52
             return self.send(200, html, reveal_page(int(q["reveal"]))) if ok else self.redirect("/")
         if "deck" not in q:
             return self.send(200, html, remember_page())
@@ -226,4 +256,4 @@ class Handler(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     print(f"Hocus Pocus (Python) at http://localhost:{PORT}")
-    ThreadingHTTPServer(("", PORT), Handler).serve_forever()
+    ThreadingHTTPServer((HOST, PORT), Handler).serve_forever()

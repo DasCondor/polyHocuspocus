@@ -784,6 +784,15 @@ pre.code {
   line-height: 1.5;
 }
 
+/* Each word of a command stays whole, so lines break between flags, not inside one. */
+.cmd code .tok,
+#server-docker .tok,
+.run-line code .tok {
+  display: inline-block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
 .run-links {
   display: flex;
   flex-wrap: wrap;

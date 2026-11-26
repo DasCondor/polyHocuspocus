@@ -10,6 +10,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const PORT = Number(process.env.PORT) || 3000;
+// Only this computer can connect unless HOST says otherwise (the Docker image sets 0.0.0.0).
+const HOST = process.env.HOST || '127.0.0.1';
 const CSS = fs.readFileSync(path.join(__dirname, '..', 'shared', 'hocuspocus.css'));
 
 const SUITS = [['♠', 'Spades'], ['♥', 'Hearts'], ['♣', 'Clubs'], ['♦', 'Diamonds']];
@@ -45,10 +47,11 @@ function collect(piles, chosen) {
   return [...piles[others[0]], ...piles[chosen], ...piles[others[1]]];
 }
 
-// A deck from the link must be 21 different cards.
+// A deck from the link must be 21 different cards, written as plain numbers.
 function parseDeck(text) {
-  const ids = (text || '').split('.').map(Number);
-  const valid = ids.length === 21 && new Set(ids).size === 21 && ids.every(n => Number.isInteger(n) && n >= 0 && n < 52);
+  if (!/^\d{1,2}(\.\d{1,2}){20}$/.test(text || '')) return null;
+  const ids = text.split('.').map(Number);
+  const valid = new Set(ids).size === 21 && ids.every(n => n < 52);
   return valid ? ids : null;
 }
 
@@ -166,39 +169,65 @@ function revealPage(id) {
 
 /* ---------- Routes ---------- */
 
+// Sent with every response. The pages use no scripts, frames or forms, so the policy allows none.
+const SECURITY_HEADERS = {
+  'Content-Security-Policy': "default-src 'none'; style-src 'self'; style-src-attr 'unsafe-inline'; img-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'Referrer-Policy': 'no-referrer',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()',
+  'Cross-Origin-Opener-Policy': 'same-origin',
+  'Cross-Origin-Resource-Policy': 'same-origin',
+};
+
 function handle(req, res) {
-  const url = new URL(req.url, 'http://localhost');
-  const send = (status, type, body) => {
-    res.writeHead(status, { 'Content-Type': type, 'Cache-Control': 'no-store' });
-    res.end(body);
+  const send = (status, type, body, extra = {}) => {
+    res.writeHead(status, { ...SECURITY_HEADERS, 'Content-Type': type, 'Cache-Control': 'no-store', ...extra });
+    res.end(req.method === 'HEAD' ? undefined : body);
   };
   const redirect = to => {
-    res.writeHead(303, { Location: to });
+    res.writeHead(303, { ...SECURITY_HEADERS, Location: to });
     res.end();
   };
+
+  if (req.method !== 'GET' && req.method !== 'HEAD') {
+    return send(405, 'text/plain; charset=utf-8', 'Method not allowed', { Allow: 'GET, HEAD' });
+  }
+  let url;
+  try {
+    url = new URL(req.url, 'http://localhost');
+  } catch {
+    return send(400, 'text/plain; charset=utf-8', 'Bad request');
+  }
 
   if (url.pathname === '/hocuspocus.css') return send(200, 'text/css; charset=utf-8', CSS);
   if (url.pathname !== '/') return send(404, 'text/plain; charset=utf-8', 'Not found');
 
   const q = url.searchParams;
   if (q.has('reveal')) {
-    const id = Number(q.get('reveal'));
-    return Number.isInteger(id) && id >= 0 && id < 52 ? send(200, 'text/html; charset=utf-8', revealPage(id)) : redirect('/');
+    const id = /^\d{1,2}$/.test(q.get('reveal')) ? Number(q.get('reveal')) : -1;
+    return id >= 0 && id < 52 ? send(200, 'text/html; charset=utf-8', revealPage(id)) : redirect('/');
   }
   if (!q.has('deck')) return send(200, 'text/html; charset=utf-8', rememberPage());
 
   const deck = parseDeck(q.get('deck'));
-  const round = Number(q.get('round'));
-  if (!deck || ![1, 2, 3].includes(round)) return redirect('/');
+  const round = ['1', '2', '3'].includes(q.get('round')) ? Number(q.get('round')) : 0;
+  if (!deck || !round) return redirect('/');
   if (!q.has('pick')) return send(200, 'text/html; charset=utf-8', choosePage(deck, round));
 
+  if (!['0', '1', '2'].includes(q.get('pick'))) return redirect('/');
   const pick = Number(q.get('pick'));
-  if (![0, 1, 2].includes(pick)) return redirect('/');
   const next = collect(deal(deck), pick);
   // After three rounds the remembered card is always the 11th card.
   return redirect(round === ROUNDS ? `/?reveal=${next[10]}` : gameLink(next, round + 1));
 }
 
-http.createServer(handle).listen(PORT, () => {
+const server = http.createServer({ maxHeaderSize: 8192 }, handle);
+// Drop slow or idle connections quickly so a few clients can't tie the server up.
+server.headersTimeout = 5000;
+server.requestTimeout = 10000;
+server.keepAliveTimeout = 5000;
+server.maxRequestsPerSocket = 100;
+server.listen(PORT, HOST, () => {
   console.log(`Hocus Pocus (Node.js) at http://localhost:${PORT}`);
 });
