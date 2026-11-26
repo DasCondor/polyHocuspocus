@@ -1,0 +1,110 @@
+# Run any version without installing its language:
+#
+#   docker compose run --rm go           play the Go version in your terminal
+#   docker compose run --rm go --test    1,000-game self-test
+#   docker compose up                    the website and both web servers
+#
+# Terminal versions sit in the "cli" profile so `docker compose up` skips them.
+
+services:
+  python:
+    build: { context: ., dockerfile: docker/python.Dockerfile }
+    profiles: [cli]
+    stdin_open: true
+    tty: true
+
+  javascript:
+    build: { context: ., dockerfile: docker/javascript.Dockerfile }
+    profiles: [cli]
+    stdin_open: true
+    tty: true
+
+  typescript:
+    build: { context: ., dockerfile: docker/typescript.Dockerfile }
+    profiles: [cli]
+    stdin_open: true
+    tty: true
+
+  go:
+    build: { context: ., dockerfile: docker/go.Dockerfile }
+    profiles: [cli]
+    stdin_open: true
+    tty: true
+
+  rust:
+    build: { context: ., dockerfile: docker/rust.Dockerfile }
+    profiles: [cli]
+    stdin_open: true
+    tty: true
+
+  c:
+    build: { context: ., dockerfile: docker/c.Dockerfile }
+    profiles: [cli]
+    stdin_open: true
+    tty: true
+
+  cpp:
+    build: { context: ., dockerfile: docker/cpp.Dockerfile }
+    profiles: [cli]
+    stdin_open: true
+    tty: true
+
+  csharp:
+    build: { context: ., dockerfile: docker/csharp.Dockerfile }
+    profiles: [cli]
+    stdin_open: true
+    tty: true
+
+  java:
+    build: { context: ., dockerfile: docker/java.Dockerfile }
+    profiles: [cli]
+    stdin_open: true
+    tty: true
+
+  kotlin:
+    build: { context: ., dockerfile: docker/kotlin.Dockerfile }
+    profiles: [cli]
+    stdin_open: true
+    tty: true
+
+  ruby:
+    build: { context: ., dockerfile: docker/ruby.Dockerfile }
+    profiles: [cli]
+    stdin_open: true
+    tty: true
+
+  lua:
+    build: { context: ., dockerfile: docker/lua.Dockerfile }
+    profiles: [cli]
+    stdin_open: true
+    tty: true
+
+  perl:
+    build: { context: ., dockerfile: docker/perl.Dockerfile }
+    profiles: [cli]
+    stdin_open: true
+    tty: true
+
+  bash:
+    build: { context: ., dockerfile: docker/bash.Dockerfile }
+    profiles: [cli]
+    stdin_open: true
+    tty: true
+
+  powershell:
+    build: { context: ., dockerfile: docker/powershell.Dockerfile }
+    profiles: [cli]
+    stdin_open: true
+    tty: true
+
+  site:  # every web version plus the code viewer: http://localhost:8080
+    build: { context: ., dockerfile: docker/site.Dockerfile }
+    ports: ["8080:80"]
+
+  node-web:  # Node.js server version: http://localhost:3000
+    build: { context: ., dockerfile: docker/node-web.Dockerfile }
+    ports: ["3000:3000"]
+
+  python-web:  # Python server version: http://localhost:8000
+    build: { context: ., dockerfile: docker/python-web.Dockerfile }
+    ports: ["8000:8000"]

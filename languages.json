@@ -1,55 +1,298 @@
 [
-  { "id": "python", "name": "Python", "color": "#4b8bbe", "hljs": "python",
-    "files": ["python/hocuspocus.py"],
-    "run": "python python/hocuspocus.py" },
-  { "id": "javascript", "name": "JavaScript", "color": "#f1e05a", "hljs": "javascript",
-    "files": ["javascript/hocuspocus.js"],
-    "run": "node javascript/hocuspocus.js" },
-  { "id": "typescript", "name": "TypeScript", "color": "#3a8ee6", "hljs": "typescript",
-    "files": ["typescript/hocuspocus.ts"],
-    "run": "node typescript/hocuspocus.ts",
-    "note": "Node.js 22.18 or later runs TypeScript directly." },
-  { "id": "go", "name": "Go", "color": "#00add8", "hljs": "go",
-    "files": ["go/hocuspocus.go"],
-    "run": "go run go/hocuspocus.go" },
-  { "id": "rust", "name": "Rust", "color": "#dea584", "hljs": "rust",
-    "files": ["rust/hocuspocus.rs"],
-    "run": "rustc -O rust/hocuspocus.rs -o hocuspocus && ./hocuspocus",
-    "note": "No crates: a tiny xorshift generator stands in for rand." },
-  { "id": "c", "name": "C", "color": "#a8b9cc", "hljs": "c",
-    "files": ["c/hocuspocus.c"],
-    "run": "cc -O2 c/hocuspocus.c -o hocuspocus && ./hocuspocus" },
-  { "id": "cpp", "name": "C++", "color": "#f34b7d", "hljs": "cpp",
-    "files": ["cpp/hocuspocus.cpp"],
-    "run": "c++ -std=c++17 -O2 cpp/hocuspocus.cpp -o hocuspocus && ./hocuspocus" },
-  { "id": "csharp", "name": "C#", "color": "#5fb35f", "hljs": "csharp",
-    "files": ["csharp/Program.cs", "csharp/HocusPocus.csproj"],
-    "run": "dotnet run --project csharp" },
-  { "id": "java", "name": "Java", "color": "#e07a2e", "hljs": "java",
-    "files": ["java/HocusPocus.java"],
-    "run": "java java/HocusPocus.java" },
-  { "id": "kotlin", "name": "Kotlin", "color": "#a97bff", "hljs": "kotlin",
-    "files": ["kotlin/hocuspocus.kt"],
-    "run": "kotlinc kotlin/hocuspocus.kt -include-runtime -d hocuspocus.jar && java -jar hocuspocus.jar" },
-  { "id": "ruby", "name": "Ruby", "color": "#e0474c", "hljs": "ruby",
-    "files": ["ruby/hocuspocus.rb"],
-    "run": "ruby ruby/hocuspocus.rb" },
-  { "id": "lua", "name": "Lua", "color": "#6b7fe0", "hljs": "lua",
-    "files": ["lua/hocuspocus.lua"],
-    "run": "lua lua/hocuspocus.lua",
-    "note": "Lua counts from 1, so the reveal is deck[11]." },
-  { "id": "perl", "name": "Perl", "color": "#39a6d6", "hljs": "perl",
-    "files": ["perl/hocuspocus.pl"],
-    "run": "perl perl/hocuspocus.pl" },
-  { "id": "bash", "name": "Bash", "color": "#89e051", "hljs": "bash",
-    "files": ["bash/hocuspocus.sh"],
-    "run": "bash bash/hocuspocus.sh",
-    "note": "No nested arrays in Bash, so piles are read straight out of the deck." },
-  { "id": "powershell", "name": "PowerShell", "color": "#5391fe", "hljs": "powershell",
-    "files": ["powershell/hocuspocus.ps1"],
-    "run": "pwsh powershell/hocuspocus.ps1" },
-  { "id": "original", "name": "Original", "color": "#d8be82", "hljs": "python",
-    "files": ["python/original/Pocus.py", "python/original/Deck.py"],
-    "run": "cd python/original && py Pocus.py",
-    "note": "The first Python version, kept as it was in pyHocuspocus. It clears the screen with cls, so it runs on Windows." }
+ {
+  "id": "python",
+  "name": "Python",
+  "color": "#4b8bbe",
+  "hljs": "python",
+  "files": [
+   "python/hocuspocus.py"
+  ],
+  "run": "python python/hocuspocus.py",
+  "group": "cli",
+  "docker": "docker compose run --rm python"
+ },
+ {
+  "id": "javascript",
+  "name": "JavaScript",
+  "color": "#f1e05a",
+  "hljs": "javascript",
+  "files": [
+   "javascript/hocuspocus.js"
+  ],
+  "run": "node javascript/hocuspocus.js",
+  "group": "cli",
+  "docker": "docker compose run --rm javascript"
+ },
+ {
+  "id": "typescript",
+  "name": "TypeScript",
+  "color": "#3a8ee6",
+  "hljs": "typescript",
+  "files": [
+   "typescript/hocuspocus.ts"
+  ],
+  "run": "node typescript/hocuspocus.ts",
+  "note": "Node.js 22.18 or later runs TypeScript directly.",
+  "group": "cli",
+  "docker": "docker compose run --rm typescript"
+ },
+ {
+  "id": "go",
+  "name": "Go",
+  "color": "#00add8",
+  "hljs": "go",
+  "files": [
+   "go/hocuspocus.go"
+  ],
+  "run": "go run go/hocuspocus.go",
+  "group": "cli",
+  "docker": "docker compose run --rm go"
+ },
+ {
+  "id": "rust",
+  "name": "Rust",
+  "color": "#dea584",
+  "hljs": "rust",
+  "files": [
+   "rust/hocuspocus.rs"
+  ],
+  "run": "rustc -O rust/hocuspocus.rs -o hocuspocus && ./hocuspocus",
+  "note": "No crates: a tiny xorshift generator stands in for rand.",
+  "group": "cli",
+  "docker": "docker compose run --rm rust"
+ },
+ {
+  "id": "c",
+  "name": "C",
+  "color": "#a8b9cc",
+  "hljs": "c",
+  "files": [
+   "c/hocuspocus.c"
+  ],
+  "run": "cc -O2 c/hocuspocus.c -o hocuspocus && ./hocuspocus",
+  "group": "cli",
+  "docker": "docker compose run --rm c"
+ },
+ {
+  "id": "cpp",
+  "name": "C++",
+  "color": "#f34b7d",
+  "hljs": "cpp",
+  "files": [
+   "cpp/hocuspocus.cpp"
+  ],
+  "run": "c++ -std=c++17 -O2 cpp/hocuspocus.cpp -o hocuspocus && ./hocuspocus",
+  "group": "cli",
+  "docker": "docker compose run --rm cpp"
+ },
+ {
+  "id": "csharp",
+  "name": "C#",
+  "color": "#5fb35f",
+  "hljs": "csharp",
+  "files": [
+   "csharp/Program.cs",
+   "csharp/HocusPocus.csproj"
+  ],
+  "run": "dotnet run --project csharp",
+  "group": "cli",
+  "docker": "docker compose run --rm csharp"
+ },
+ {
+  "id": "java",
+  "name": "Java",
+  "color": "#e07a2e",
+  "hljs": "java",
+  "files": [
+   "java/HocusPocus.java"
+  ],
+  "run": "java java/HocusPocus.java",
+  "group": "cli",
+  "docker": "docker compose run --rm java"
+ },
+ {
+  "id": "kotlin",
+  "name": "Kotlin",
+  "color": "#a97bff",
+  "hljs": "kotlin",
+  "files": [
+   "kotlin/hocuspocus.kt"
+  ],
+  "run": "kotlinc kotlin/hocuspocus.kt -include-runtime -d hocuspocus.jar && java -jar hocuspocus.jar",
+  "group": "cli",
+  "docker": "docker compose run --rm kotlin"
+ },
+ {
+  "id": "ruby",
+  "name": "Ruby",
+  "color": "#e0474c",
+  "hljs": "ruby",
+  "files": [
+   "ruby/hocuspocus.rb"
+  ],
+  "run": "ruby ruby/hocuspocus.rb",
+  "group": "cli",
+  "docker": "docker compose run --rm ruby"
+ },
+ {
+  "id": "lua",
+  "name": "Lua",
+  "color": "#6b7fe0",
+  "hljs": "lua",
+  "files": [
+   "lua/hocuspocus.lua"
+  ],
+  "run": "lua lua/hocuspocus.lua",
+  "note": "Lua counts from 1, so the reveal is deck[11].",
+  "group": "cli",
+  "docker": "docker compose run --rm lua"
+ },
+ {
+  "id": "perl",
+  "name": "Perl",
+  "color": "#39a6d6",
+  "hljs": "perl",
+  "files": [
+   "perl/hocuspocus.pl"
+  ],
+  "run": "perl perl/hocuspocus.pl",
+  "group": "cli",
+  "docker": "docker compose run --rm perl"
+ },
+ {
+  "id": "bash",
+  "name": "Bash",
+  "color": "#89e051",
+  "hljs": "bash",
+  "files": [
+   "bash/hocuspocus.sh"
+  ],
+  "run": "bash bash/hocuspocus.sh",
+  "note": "No nested arrays in Bash, so piles are read straight out of the deck.",
+  "group": "cli",
+  "docker": "docker compose run --rm bash"
+ },
+ {
+  "id": "powershell",
+  "name": "PowerShell",
+  "color": "#5391fe",
+  "hljs": "powershell",
+  "files": [
+   "powershell/hocuspocus.ps1"
+  ],
+  "run": "pwsh powershell/hocuspocus.ps1",
+  "group": "cli",
+  "docker": "docker compose run --rm powershell"
+ },
+ {
+  "id": "original",
+  "name": "Original",
+  "color": "#d8be82",
+  "hljs": "python",
+  "files": [
+   "python/original/Pocus.py",
+   "python/original/Deck.py"
+  ],
+  "run": "cd python/original && py Pocus.py",
+  "note": "The first Python version, kept as it was in pyHocuspocus. It clears the screen with cls, so it runs on Windows.",
+  "group": "cli"
+ },
+ {
+  "id": "web-vanilla",
+  "name": "Plain JavaScript",
+  "color": "#f1e05a",
+  "hljs": "javascript",
+  "group": "web",
+  "files": [
+   "web/vanilla/app.js",
+   "web/vanilla/index.html",
+   "web/shared/hocuspocus.css"
+  ],
+  "play": "web/vanilla/",
+  "run": "Open web/vanilla/index.html in a browser",
+  "docker": "docker compose up site",
+  "note": "No framework and no build step. hocuspocus.css is the look every web version shares."
+ },
+ {
+  "id": "web-angular",
+  "name": "Angular",
+  "color": "#e23257",
+  "hljs": "typescript",
+  "group": "web",
+  "files": [
+   "web/angular/src/app/app.ts",
+   "web/angular/src/main.ts",
+   "web/angular/angular.json"
+  ],
+  "play": "web/angular/",
+  "run": "cd web/angular && npm install && npm start",
+  "docker": "docker compose up site",
+  "note": "Angular with signals and the built-in @if / @for control flow."
+ },
+ {
+  "id": "web-react",
+  "name": "React",
+  "color": "#61dafb",
+  "hljs": "javascript",
+  "group": "web",
+  "files": [
+   "web/react/src/App.jsx",
+   "web/react/src/main.jsx",
+   "web/react/vite.config.js"
+  ],
+  "play": "web/react/",
+  "run": "cd web/react && npm install && npm run dev",
+  "docker": "docker compose up site",
+  "note": "A React function component with hooks, built with Vite."
+ },
+ {
+  "id": "web-vue",
+  "name": "Vue",
+  "color": "#42b883",
+  "hljs": "xml",
+  "group": "web",
+  "files": [
+   "web/vue/src/App.vue",
+   "web/vue/src/main.js",
+   "web/vue/vite.config.js"
+  ],
+  "play": "web/vue/",
+  "run": "cd web/vue && npm install && npm run dev",
+  "docker": "docker compose up site",
+  "note": "A Vue single-file component using the Composition API, built with Vite."
+ },
+ {
+  "id": "web-node",
+  "name": "Node.js server",
+  "color": "#5fa04e",
+  "hljs": "javascript",
+  "group": "web",
+  "files": [
+   "web/node/server.js"
+  ],
+  "server": {
+   "port": 3000,
+   "preview": "previews/node.png"
+  },
+  "run": "node web/node/server.js",
+  "docker": "docker compose up node-web",
+  "note": "Every page is built on the server and the game lives in the links, so the browser runs no JavaScript. No npm packages."
+ },
+ {
+  "id": "web-python",
+  "name": "Python server",
+  "color": "#4b8bbe",
+  "hljs": "python",
+  "group": "web",
+  "files": [
+   "web/python/server.py"
+  ],
+  "server": {
+   "port": 8000,
+   "preview": "previews/python.png"
+  },
+  "run": "python web/python/server.py",
+  "docker": "docker compose up python-web",
+  "note": "The same server-rendered game using only Python's standard library."
+ }
 ]

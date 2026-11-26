@@ -1,0 +1,352 @@
+/*
+ * Shared look for every web version of the trick (plain JS, Angular, React,
+ * Vue, Node.js, Python). Each version renders the same markup:
+ *
+ *   main.hp
+ *     ol.hp-steps > li(.active|.done)
+ *     h1.hp-title, p.hp-text
+ *     div.hp-table > div.hp-piles > section.hp-pile
+ *       h2, ul.hp-cards > li.hp-card(.red), .hp-pick
+ *     div.hp-reveal > .hp-card.hp-big, p.hp-name
+ *     div.hp-actions > .hp-primary
+ *     p.hp-made
+ */
+
+:root {
+  color-scheme: dark;
+  --hp-bg: #0f1a17;
+  --hp-text: #f3f1ea;
+  --hp-muted: #c4d0c8;
+  --hp-gold: #e2c785;
+  --hp-gold-hover: #efd9a3;
+  --hp-felt: #1c4534;
+  --hp-felt-edge: #2f6149;
+  --hp-card: #fffdf6;
+  --hp-black: #1d2622;
+  --hp-red: #b42620;
+  --hp-font: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --hp-strip: 44px; /* how much of each stacked card shows */
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-variant-numeric: lining-nums;
+  margin: 0;
+  background: var(--hp-bg);
+  color: var(--hp-text);
+  font: 17px/1.55 var(--hp-font);
+}
+
+.hp {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 28px 20px 32px;
+  text-align: center;
+}
+
+/* Progress */
+
+.hp-steps {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 0 20px;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+}
+
+.hp-steps li {
+  padding: 5px 14px;
+  border: 1px solid #ffffff2a;
+  border-radius: 999px;
+  color: var(--hp-muted);
+}
+
+.hp-steps li.done {
+  color: var(--hp-text);
+  border-color: #ffffff50;
+}
+
+.hp-steps li.active {
+  color: #1b2a21;
+  background: var(--hp-gold);
+  border-color: var(--hp-gold);
+  font-weight: 600;
+}
+
+/* Headings */
+
+.hp-title {
+  margin: 0 0 8px;
+  font: 600 clamp(28px, 4.5vw, 38px)/1.2 Georgia, "Times New Roman", serif;
+}
+
+.hp-text {
+  margin: 0 auto 24px;
+  max-width: 600px;
+  color: var(--hp-muted);
+  font-size: 18px;
+}
+
+/* The table and piles */
+
+.hp-table {
+  padding: 22px 18px 20px;
+  border-radius: 20px;
+  background: radial-gradient(ellipse at 50% 0, var(--hp-felt-edge), var(--hp-felt) 70%);
+  border: 1px solid #ffffff1a;
+  box-shadow: inset 0 0 40px #0004, 0 12px 30px #0005;
+}
+
+.hp-piles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.hp-pile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+}
+
+.hp-pile h2 {
+  margin: 0 0 12px;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--hp-text);
+}
+
+.hp-cards {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Cards */
+
+.hp-card {
+  position: relative;
+  width: 112px;
+  height: 152px;
+  border-radius: 9px;
+  background: var(--hp-card);
+  color: var(--hp-black);
+  border: 1px solid #d9d1b8;
+  box-shadow: 0 2px 6px #0006;
+  animation: hp-deal .45s ease-out both;
+  animation-delay: calc(var(--i, 0) * 35ms);
+}
+
+.hp-card + .hp-card {
+  margin-top: calc(var(--hp-strip) - 152px);
+}
+
+.hp-card.red {
+  color: var(--hp-red);
+}
+
+.hp-corner {
+  position: absolute;
+  top: 7px;
+  left: 10px;
+  font: 700 23px/1 Georgia, serif;
+  display: flex;
+  gap: 3px;
+  align-items: baseline;
+}
+
+.hp-pip {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding-top: 18px;
+  font-size: 50px;
+}
+
+.hp-pick {
+  margin-top: 16px;
+  width: 100%;
+  max-width: 190px;
+  min-height: 46px;
+  padding: 10px 12px;
+  border: 1px solid #ffffff55;
+  border-radius: 10px;
+  background: #0d2219aa;
+  color: var(--hp-text);
+  font: 600 16px/1.2 var(--hp-font);
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.hp-pick:hover {
+  background: var(--hp-gold);
+  border-color: var(--hp-gold);
+  color: #1b2a21;
+}
+
+.hp-pick kbd {
+  font: 13px ui-monospace, Consolas, monospace;
+  padding: 1px 6px;
+  border: 1px solid currentColor;
+  border-radius: 5px;
+  opacity: .7;
+}
+
+/* Reveal */
+
+.hp-reveal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 16px;
+  border-radius: 20px;
+  background: radial-gradient(ellipse at 50% 30%, var(--hp-felt-edge), var(--hp-felt) 75%);
+  border: 1px solid #ffffff1a;
+}
+
+.hp-card.hp-big {
+  width: 170px;
+  height: 232px;
+  border-radius: 13px;
+  box-shadow: 0 0 60px #e2c78555, 0 10px 30px #0007;
+  animation: hp-flip .7s ease-out both;
+}
+
+.hp-big .hp-corner {
+  font-size: 32px;
+  top: 10px;
+  left: 14px;
+}
+
+.hp-big .hp-pip {
+  font-size: 84px;
+}
+
+.hp-name {
+  margin: 20px 0 0;
+  font: 600 30px/1.2 Georgia, serif;
+  color: var(--hp-gold);
+}
+
+/* Buttons and footnote */
+
+.hp-actions {
+  margin-top: 24px;
+}
+
+.hp-primary {
+  display: inline-block;
+  min-height: 50px;
+  padding: 13px 30px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--hp-gold);
+  color: #1b2a21;
+  font: 700 17px/1.4 var(--hp-font);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.hp-primary:hover {
+  background: var(--hp-gold-hover);
+}
+
+.hp-pick:focus-visible,
+.hp-primary:focus-visible {
+  outline: 3px solid var(--hp-gold-hover);
+  outline-offset: 3px;
+}
+
+.hp-made {
+  margin: 22px 0 0;
+  font-size: 14px;
+  color: var(--hp-muted);
+}
+
+/* Motion */
+
+@keyframes hp-deal {
+  from { opacity: 0; transform: translateY(-14px); }
+}
+
+@keyframes hp-flip {
+  from { opacity: 0; transform: rotateY(90deg) scale(.85); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hp-card,
+  .hp-card.hp-big {
+    animation: none;
+  }
+}
+
+/* Phones */
+
+@media (max-width: 560px) {
+  :root {
+    --hp-strip: 38px;
+  }
+
+  .hp {
+    padding: 20px 10px 26px;
+  }
+
+  .hp-steps {
+    font-size: 13px;
+    gap: 5px;
+  }
+
+  .hp-steps li {
+    padding: 4px 10px;
+  }
+
+  .hp-text {
+    font-size: 16px;
+  }
+
+  .hp-table {
+    padding: 16px 6px;
+  }
+
+  .hp-piles {
+    gap: 6px;
+  }
+
+  .hp-card {
+    width: 92px;
+    height: 128px;
+  }
+
+  .hp-card + .hp-card {
+    margin-top: calc(var(--hp-strip) - 128px);
+  }
+
+  .hp-corner {
+    font-size: 20px;
+    left: 7px;
+  }
+
+  .hp-pip {
+    font-size: 40px;
+  }
+
+  .hp-pick {
+    font-size: 15px;
+    padding: 8px 6px;
+  }
+
+  .hp-pick kbd {
+    display: none;
+  }
+}

@@ -3,125 +3,137 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#101b19">
-  <meta name="description" content="The classic 21-card trick. Play it in the browser, then read the same trick written in 15 programming languages.">
-  <title>Hocus Pocus · One trick, many languages</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600;700&display=swap">
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="code.css">
+  <meta name="theme-color" content="#0f1a17">
+  <meta name="description" content="The classic 21-card trick. Play it in six web versions, then read it in 15 coding languages.">
+  <title>Hocus Pocus · The 21-card trick in many languages</title>
+  <link rel="stylesheet" href="hub.css">
 </head>
 <body>
-  <header>
-    <div class="brand"><span>✧</span>Hocus Pocus</div>
+  <header class="top">
+    <a class="brand" href="#"><span aria-hidden="true">✧</span> Hocus Pocus</a>
     <nav>
-      <a class="quiet" href="#code">The code</a>
-      <button class="quiet" id="sound" aria-pressed="false">Sound off</button>
-      <button class="quiet" id="help">How to play</button>
+      <a href="#play">Play</a>
+      <a href="#how">How it works</a>
+      <a href="#code">Coding languages</a>
     </nav>
   </header>
 
   <main>
-    <section class="intro">
-      <div class="eyebrow">A little mathematics. A little magic.</div>
-      <h1>A thought, <em>revealed.</em></h1>
-      <p class="subtitle" id="instruction">
-        Choose any card in your mind. Keep it a secret.<br>
-        Tell me only which pile holds it. Three choices. One impossible reveal.
+    <section class="hero">
+      <h1>The 21-card trick</h1>
+      <p>
+        Think of a card, point to its pile three times, and it appears.
+        Play it below in <strong id="web-count">six</strong> web versions, then read the same trick in
+        <strong id="cli-count">15</strong> coding languages.
       </p>
     </section>
 
-    <div class="steps" aria-label="Game progress">
-      <span id="s1" class="active"><b>1</b> REMEMBER</span>
-      <i class="line"></i>
-      <span id="s2"><b>2</b> FOLLOW</span>
-      <i class="line"></i>
-      <span id="s3"><b>3</b> REVEAL</span>
-    </div>
+    <section id="play" class="block" aria-labelledby="play-title">
+      <h2 id="play-title" class="visually-hidden">Play</h2>
+      <div class="switcher">
+        <span class="switcher-label" id="switcher-label">Web version:</span>
+        <div class="segments" id="web-versions" role="tablist" aria-labelledby="switcher-label"></div>
+      </div>
 
-    <div class="game">
-      <div class="table" id="table">
-        <div class="piles" id="piles"></div>
-        <div class="reveal" id="reveal">
-          <div class="eyebrow">You were thinking of</div>
-          <div class="hero-card" id="hero"></div>
-          <h2 id="answer"></h2>
-          <p>One thought. Twenty-one possibilities.</p>
+      <div class="stage">
+        <iframe id="frame" title="Hocus Pocus game" hidden></iframe>
+        <div class="server-panel" id="server-panel" hidden>
+          <div class="server-text">
+            <h3 id="server-title">Runs on a server</h3>
+            <p id="server-note"></p>
+            <p>GitHub Pages can only host static files, so this version can't run here. Start it on your computer:</p>
+            <dl class="commands">
+              <dt>Docker</dt><dd><code id="server-docker"></code></dd>
+              <dt>Or</dt><dd><code id="server-run"></code></dd>
+              <dt>Then open</dt><dd><code id="server-url"></code></dd>
+            </dl>
+          </div>
+          <figure>
+            <img id="server-preview" alt="" width="900" height="1000">
+            <figcaption>What it looks like</figcaption>
+          </figure>
         </div>
       </div>
-    </div>
 
-    <div class="below">
-      <div id="status" class="status" aria-live="polite">Take your time. Remember one card below.</div>
-      <button class="primary" id="start">I have my card →</button>
-      <p class="hint" id="hint">No need to click your card. Just remember it.</p>
-      <button class="quiet" id="restart" hidden>Start over</button>
-    </div>
+      <p class="stage-info">
+        <span id="stage-name"></span>
+        <a href="#code" id="stage-code">Read this version's code ↓</a>
+        <a href="#" id="stage-open" target="_blank" rel="noopener">Open on its own page ↗</a>
+      </p>
+    </section>
 
-    <section class="code-section" id="code" aria-labelledby="code-title">
-      <div class="code-intro">
-        <div class="eyebrow">Behind the curtain</div>
-        <h2 id="code-title">One trick, <em><span id="lang-count">15</span> languages.</em></h2>
-        <p class="subtitle">
-          Each version deals the same 21 cards, asks the same three questions and reveals the 11th card.<br>
-          Run any of them with <code>--test</code> and it plays 1,000 games against itself to prove the trick never misses.
-        </p>
+    <section id="how" class="block" aria-labelledby="how-title">
+      <h2 id="how-title">How it works</h2>
+      <div class="how">
+        <ol class="how-steps">
+          <li>Deal 21 cards into three piles of seven, one card at a time.</li>
+          <li>The player says which pile holds their card, and nothing else.</li>
+          <li>Stack the piles with <strong>that pile in the middle</strong>, then deal again.</li>
+          <li>After three rounds the card is always the <strong>11th</strong> card in the deck.</li>
+        </ol>
+        <table>
+          <caption>Where the card can be</caption>
+          <thead><tr><th>After</th><th>Position</th><th>Possible cards</th></tr></thead>
+          <tbody>
+            <tr><td>Start</td><td>1 – 21</td><td>21</td></tr>
+            <tr><td>Round 1</td><td>8 – 14</td><td>7</td></tr>
+            <tr><td>Round 2</td><td>10 – 12</td><td>3</td></tr>
+            <tr><td>Round 3</td><td><strong>11</strong></td><td><strong>1</strong></td></tr>
+          </tbody>
+        </table>
       </div>
+    </section>
 
-      <div class="lang-grid" id="langs" role="tablist" aria-label="Choose a language"></div>
+    <section id="code" class="block" aria-labelledby="code-title">
+      <h2 id="code-title">Coding languages</h2>
+      <p class="lead">
+        Every terminal version deals the same cards and asks the same three questions.
+        Add <code>--test</code> to make one play 1,000 games against itself, or run any of them in Docker
+        without installing the language.
+      </p>
+
+      <h3 class="group-title">Terminal programs</h3>
+      <div class="chips" id="chips-cli" role="tablist" aria-label="Coding languages"></div>
+      <h3 class="group-title">Web versions</h3>
+      <div class="chips" id="chips-web" role="tablist" aria-label="Web versions"></div>
 
       <div class="viewer" id="viewer">
         <div class="viewer-bar">
           <div class="file-tabs" id="file-tabs" role="tablist" aria-label="Files"></div>
           <div class="viewer-actions">
-            <button class="quiet small" id="copy-code">Copy code</button>
-            <a class="quiet small" id="source-link" target="_blank" rel="noopener">GitHub ↗</a>
+            <button class="ghost" id="copy-code">Copy code</button>
+            <a class="ghost" id="source-link" target="_blank" rel="noopener">GitHub ↗</a>
           </div>
         </div>
         <div class="run-line">
-          <span class="run-label">RUN</span>
+          <span class="run-label">Run</span>
           <code id="run-cmd"></code>
-          <button class="quiet small" id="copy-run">Copy</button>
+          <button class="ghost" data-copy="run-cmd">Copy</button>
+        </div>
+        <div class="run-line" id="docker-line">
+          <span class="run-label">Docker</span>
+          <code id="docker-cmd"></code>
+          <button class="ghost" data-copy="docker-cmd">Copy</button>
         </div>
         <p class="lang-note" id="lang-note" hidden></p>
         <pre class="code"><code id="code-view">Loading…</code></pre>
       </div>
     </section>
+  </main>
 
-    <footer class="footer">
-      <a class="support-link" href="https://buymeacoffee.com/dascondor" target="_blank" rel="noopener">
+  <footer class="bottom">
+    <span>polyHocuspocus started as <a href="https://github.com/DasCondor/pyHocuspocus" target="_blank" rel="noopener">pyHocuspocus</a>.</span>
+    <span class="bottom-links">
+      <a href="https://github.com/DasCondor/polyHocuspocus" target="_blank" rel="noopener">Source on GitHub ↗</a>
+      <a class="coffee" href="https://buymeacoffee.com/dascondor" target="_blank" rel="noopener">
         <img src="dascondor-logo.png" alt="" width="28" height="28">
         Buy me a coffee
       </a>
-      <span>21 CARDS &nbsp; / &nbsp; 3 CHOICES &nbsp; / &nbsp; 1 SECRET</span>
-      <span>Source on <a href="https://github.com/DasCondor/polyHocuspocus" target="_blank" rel="noopener">GitHub ↗</a> · started as <a href="https://github.com/DasCondor/pyHocuspocus" target="_blank" rel="noopener">pyHocuspocus</a></span>
-    </footer>
-  </main>
+    </span>
+  </footer>
 
-  <dialog class="dialog" id="helpDialog">
-    <h2>The little secret</h2>
-    <ol>
-      <li>Memorize one of the 21 cards. Don't click it.</li>
-      <li>Choose the pile containing that same card.</li>
-      <li>Follow your card through three rounds, then watch the reveal.</li>
-    </ol>
-    <p>If you lose track, use Start over. Keys 1, 2, and 3 select a pile.</p>
-    <details>
-      <summary>How does it work?</summary>
-      <p>
-        The chosen pile always goes between the other two. Dealing the cards into
-        three piles repeatedly narrows the possible positions. After three choices,
-        your card is the 11th card in the collected deck. No camera, tracking, or
-        mind reading needed.
-      </p>
-    </details>
-    <button class="primary" id="closeHelp">Back to the table</button>
-  </dialog>
-
-  <script src="game.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/powershell.min.js"></script>
-  <script src="code.js"></script>
+  <script src="hub.js"></script>
 </body>
 </html>
