@@ -89,10 +89,7 @@ jobs:
             case $lang in site|node-web|python-web) continue ;; esac
             echo "::group::$lang"
             docker compose run --rm -T "$lang" --test
-            printf '1
-2
-3
-' | docker compose run --rm -T "$lang" | grep "your card is the"
+            printf '1\n2\n3\n' | docker compose run --rm -T "$lang" | grep "your card is the"
             echo "::endgroup::"
           done
 
