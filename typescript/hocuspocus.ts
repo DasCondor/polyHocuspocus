@@ -1,6 +1,7 @@
 // Hocus Pocus - the 21-card trick, in TypeScript.
 // Runs directly on Node.js 22.18+ (built-in type stripping): node hocuspocus.ts
 import * as readline from 'node:readline';
+import { randomInt } from 'node:crypto';
 
 type Card = number; // 0..51
 type Piles = [Card[], Card[], Card[]];
@@ -10,7 +11,6 @@ const RANKS = ['Ace', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Que
 const ROUNDS = 3;
 
 const cardName = (card: Card): string => `${RANKS[card % 13]} of ${SUITS[Math.floor(card / 13)]}`;
-const randomInt = (n: number): number => Math.floor(Math.random() * n);
 
 /** Shuffle a full 52-card deck and keep 21 cards. */
 function newDeck(): Card[] {
@@ -32,7 +32,7 @@ function deal(deck: Card[]): Piles {
 /** Stack the piles back up with the chosen pile in the middle. */
 function collect(piles: Piles, chosen: number): Card[] {
   const others = [0, 1, 2].filter(p => p !== chosen);
-  if (Math.random() < 0.5) others.reverse();
+  if (randomInt(2)) others.reverse();
   return [...piles[others[0]], ...piles[chosen], ...piles[others[1]]];
 }
 

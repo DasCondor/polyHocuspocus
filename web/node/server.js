@@ -8,6 +8,7 @@
 const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
+const { randomInt } = require('node:crypto');
 
 const PORT = Number(process.env.PORT) || 3000;
 // Only this computer can connect unless HOST says otherwise (the Docker image sets 0.0.0.0).
@@ -31,7 +32,7 @@ function makeCard(id) {
 function newDeck() {
   const ids = [...Array(52).keys()];
   for (let i = ids.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = randomInt(i + 1);
     [ids[i], ids[j]] = [ids[j], ids[i]];
   }
   return ids.slice(0, 21);
@@ -43,7 +44,7 @@ const deal = deck => [0, 1, 2].map(p => deck.filter((_, i) => i % 3 === p));
 // Stack the piles back up with the chosen pile in the middle.
 function collect(piles, chosen) {
   const others = [0, 1, 2].filter(p => p !== chosen);
-  if (Math.random() < 0.5) others.reverse();
+  if (randomInt(2)) others.reverse();
   return [...piles[others[0]], ...piles[chosen], ...piles[others[1]]];
 }
 

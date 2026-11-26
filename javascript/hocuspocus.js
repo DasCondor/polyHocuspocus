@@ -3,13 +3,13 @@
 'use strict';
 
 const readline = require('node:readline');
+const { randomInt } = require('node:crypto');
 
 const SUITS = ['Spades', 'Hearts', 'Clubs', 'Diamonds'];
 const RANKS = ['Ace', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King'];
 const ROUNDS = 3;
 
 const cardName = card => `${RANKS[card % 13]} of ${SUITS[Math.floor(card / 13)]}`;
-const randomInt = n => Math.floor(Math.random() * n);
 
 // Shuffle a full 52-card deck and keep 21 cards.
 function newDeck() {
@@ -27,7 +27,7 @@ const deal = deck => [0, 1, 2].map(p => deck.filter((_, i) => i % 3 === p));
 // Stack the piles back up with the chosen pile in the middle.
 function collect(piles, chosen) {
   const others = [0, 1, 2].filter(p => p !== chosen);
-  if (Math.random() < 0.5) others.reverse();
+  if (randomInt(2)) others.reverse();
   return [...piles[others[0]], ...piles[chosen], ...piles[others[1]]];
 }
 

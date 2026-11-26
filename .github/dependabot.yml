@@ -1,11 +1,16 @@
 # Weekly update proposals for everything this repository pins:
 # GitHub Actions (by commit SHA), Docker base images (by digest) and npm packages.
+# Only patch and minor updates (and new digests): a major upgrade, such as a new
+# .NET, Java, Node.js or TypeScript, or the Pages actions, needs a person to check it.
 version: 2
 updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       actions:
         patterns: ["*"]
@@ -14,6 +19,9 @@ updates:
     directory: /docker
     schedule:
       interval: weekly
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       base-images:
         patterns: ["*"]
@@ -22,7 +30,9 @@ updates:
     directories: [/web/angular, /web/react, /web/vue]
     schedule:
       interval: weekly
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       npm:
         patterns: ["*"]
-        update-types: [minor, patch]
